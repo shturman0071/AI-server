@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>ТМКИ - Официальный сайт - Главная</title>
+    <meta http-equiv="cache-control">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" href="/fonts/roboto-condensed-400.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/roboto-condensed-700.woff2" as="font" type="font/woff2" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Roboto+Condensed&display=swap"
+        rel="stylesheet"
+    />
+    <link
+        href="https://fonts.googleapis.com/icon?family=Material+Icons&display=swap"
+        rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/news-content.css" />
+    <script src="https://smartcaptcha.yandexcloud.net/captcha.js" defer></script>
+    <!-- Yandex.Metrika counter -->
+    <script src="/js/yandex-metrika.js" defer></script>
+    <noscript><div><img src="https://mc.yandex.ru/watch/104848615" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+    <!-- /Yandex.Metrika counter -->
+</head>
+<body class="bg-white text-dark">
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+
+    <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+    </symbol>
+    <symbol id="info-fill" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
+    </symbol>
+    <symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+    </symbol>
+</svg>
+
+
+
+<style>
+    .alert-session {
+        z-index: 10001;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        bottom: 15px;
+        position: fixed;
+        padding: 30px;
+        margin-left: auto;
+        margin-right: auto;
+        left: 0;
+        right: 0;
+        text-align: center;
+        max-width: 800px;
+    }
+    .alert-session svg {
+        min-width: 24px;
+        min-height: 24px;
+    }
+    @media (max-width: 1200px) {
+        .alert-session {
+            max-width: 90vw;
+        }
+    }
+    .btn-close {
+        box-sizing: content-box;
+        width: 1em;
+        height: 1em;
+        padding: 0.25em 0.25em;
+        color: #000;
+        background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23000'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e") center/1em auto no-repeat;
+        border: 0;
+        border-radius: 0.25rem;
+        opacity: .5;
+    }
+    .alert-dismissible .btn-close {
+        position: absolute;
+        top: 0;
+        right: 0;
+        z-index: 2;
+        padding: 1.25rem 1rem;
+    }
+</style>
+<script>
+
+</script>
+
+<style>
+    .alert-session {
+        bottom: 45px;
+    }
+</style>
+
+<!-- Header -->
+<header id="main-header">
+    <div class="container-fluid">
+        <div class="container-logo-burger d-flex align-items-center justify-content-between ">
+            <!-- Логотип -->
+            <a
+                    rel="canonical"
+                href="/"
+                class="d-flex align-items-center gap-2 text-decoration-none"
+            >
+                <img
+                    src="/images/logo_white.png"
+                    alt="Thyssen Mining"
+                    class="logo_img"
+                />
+            </a>
+
+            <!-- Бургер кнопка -->
+            <button id="burger" class="burger d-lg-none btn p-0 border-0">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <!-- Навигация -->
+            <nav id="main-nav" class="nav-menu">
+                <ul class="nav gap-2">
+                    <li class="nav-item">
+                        <a href="/" rel="canonical" class="nav-link">ГЛАВНАЯ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/about" class="nav-link">КОМПАНИЯ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/projects" class="nav-link">ПРОЕКТЫ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/news" class="nav-link">НОВОСТИ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/career" class="nav-link">КАРЬЕРА</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="/contacts" class="nav-link">КОНТАКТЫ</a>
+                    </li>
+                </ul>
+                <div class="contact_nav">
+                    <a href="/projects" class="icon phone get_call">call</a>
+                    <a href="/Информационный лист о компании ТМКИ.pdf" download="Информационный_лист_о_компании_ТМКИ.pdf" class="icon download">file_download</a>
+                </div>
+            </nav>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content -->
+<main>
+    <div class="bg-item slide-1" id="slide1">
+        <div class="content">
+            <div class="title">
+                <div class="title-row"><span>Т</span>ИССЕН</div>
+                <div class="title-row"><span>М</span>АИНИНГ</div>
+                <div class="title-row"><span>К</span>ОНСТРАКШН</div>
+                <div class="title-row"><span>И</span>СТ</div>
+            </div>
+            <div class="description">
+                <div class="text">
+                    Надёжный партнёр с 150-летним опытом в шахтостроении
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="bg-item slide-2" id="slide2">
+        <div class="side-image"></div>
+        <div class="side-text">
+            <div class="title">
+                <div class="text">О компании</div>
+            </div>
+            <div class="value">
+                <div class="text">
+                    Компания ООО «Тиссен Майнинг Констракшн Ист» (ООО «ТМКИ»)
+                    продолжает традиции компании «Тиссен Шахтбау ГмбХ» (Германия) на
+                    территории Российской Федерации со своими прогрессивными
+                    технологиями и 150-летним опытом в строительстве горных
+                    предприятий. <span class="hide-mobile">
+                        Наша компания крупный EPC-подрядчик предлагает
+                    следующие услуги: разработка концепции, изыскания, проектирование,
+                    проходка вертикальных и наклонных стволов, строительство
+                    поверхностных зданий, изготовление и поставка горнопроходческого и
+                    горнодобывающего оборудования, бурение технологических скважин,
+                    направленное бурение и бурение восстающих скважин, замораживание и
+                    гидроизоляция грунтов, сопровождение в получении ЗОС.</span>
+                </div>
+                <a href="/about"><div class="btn">УЗНАТЬ БОЛЬШЕ</div></a>
+            </div>
+            <div class="actions">
+                <div class="item left">
+                    <span class="w-100">более <b>30</b> проектов</span>
+                    <span class="w-50"> по СНГ</span>
+                </div>
+                <div class="item right">
+                    <span>глубина <b>2056</b> метров </span>
+                    <span> ВС-10 в Норильске</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="bg-item slide-3" id="slide3">
+        <div class="content" id="content">
+            <div class="info_box">
+                <div class="title" id="title">СКРУ-2</div>
+                <div class="text" id="text">
+                    Строительство сухих калийных стволов с нулевым водопритоком: от
+                    проектирования до сдачи в эксплуатацию. Доказанная надежность для
+                    Вашего рудника.
+                </div>
+                <div class="btn-box">
+                    <a href="#" class="btn-project-detail btn p-3">Узнать подробнее</a>
+                </div>
+                <div class="nav-column-mobile">
+                    <button class="slider-nav-btn prev" data-direction="prev">
+                        <i class="material-icons">arrow_back</i>
+                    </button>
+                    <button class="slider-nav-btn next" data-direction="next">
+                        <i class="material-icons">arrow_forward</i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="slider-container">
+                <div class="slider-container">
+                    <div class="nav-column-desktop">
+                        <button class="slider-nav-btn prev" data-direction="prev">
+                            <i class="material-icons">arrow_back</i>
+                        </button>
+                        <button class="slider-nav-btn next" data-direction="next">
+                            <i class="material-icons">arrow_forward</i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="slides-wrapper">
+                    <div class="slides" id="slides">
+                        <div class="slide">
+                            <div class="card-content">
+                                <div class="card-title">СКРУ-2</div>
+                                <div class="card-city">Соликамск</div>
+                                <div class="card-region">Пермский край (РФ)</div>
+                                <div class="card-customer-label">Уралкалий</div>
+                            </div>
+                            <img src="/images/skru-2.jpg" alt="Слайд 1" />
+                        </div>
+                        <div class="slide">
+                            <div class="card-content">
+                                <div class="card-title">СКС-1</div>
+                                <div class="card-city">Норильск</div>
+                                <div class="card-region">Красноярский край (РФ)</div>
+                                <div class="card-customer-label">Норникель</div>
+                            </div>
+                            <img src="/images/sks-1.jpg" alt="Слайд 1" />
+                        </div>
+                        <div class="slide">
+                            <div class="card-content">
+                                <div class="card-title">ВС-10</div>
+                                <div class="card-city">Норильск</div>
+                                <div class="card-region">Красноярский край (РФ)</div>
+                                <div class="card-customer-label">Норникель</div>
+                            </div>
+                            <img src="/images/vs-10.jpg" alt="Слайд 1" />
+                        </div>
+                        <div class="slide">
+                            <div class="card-content">
+                                <div class="card-title">Гремячинский ГОК</div>
+                                <div class="card-city">Котельниково</div>
+                                <div class="card-region">Волгоградская область (РФ)</div>
+                                <div class="card-customer-label">ЕвроХим - ЕХВК</div>
+                            </div>
+                            <img src="/images/gremyachka.jpg" alt="Слайд 1" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="bg-item slide-5" id="slide5">
+        <div class="container">
+            <div class="row h-50px align-items-end mb-0">
+                <div class="col-12 contact-title align-middle" style="color: white; background:rgba(35, 56, 32, 0.7); border-radius: 10px; padding: 0px 10px; margin-bottom: 10px;">Новости</div>
+            </div>
+            <div class="news-slide-content">
+                                <div class="row">
+                                        <div class="col-12 col-md-6 col-lg-4 mb-2  ">
+                        <div class="card h-100 news-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <small class="text-muted">05.12.2025</small>
+                                </div>
+                                <h5 class="card-title">
+                                    <a href="https://thyssenmining.ru/news/forum-bloka-kapitalnogo-stroitelstva-v-norilske/detail" class="text-decoration-none text-dark">
+                                        Форум блока капитального строительства ПАО ГМК «Норильский никель»
+                                    </a>
+                                </h5>
+                                <p class="card-text">
+                                    &nbsp;
+С 3 по 4 декабря 2025 года наша компания стала участником форума блока капитального строительства, организованного ПАО ГМК &laquo;Норильский никель&raquo; в городе Норильск. Мероприятие собрало представителей строительной отрасли, разработчиков технологий и проектировщиков для обсуждения клю...
+                                </p>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <a href="https://thyssenmining.ru/news/forum-bloka-kapitalnogo-stroitelstva-v-norilske/detail" class="btn btn-outline-primary btn-sm">
+                                    Читать далее
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                                        <div class="col-12 col-md-6 col-lg-4 mb-2  ">
+                        <div class="card h-100 news-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <small class="text-muted">24.10.2025</small>
+                                </div>
+                                <h5 class="card-title">
+                                    <a href="https://thyssenmining.ru/news/na-rudnike-skalistyy-vedetsya-prohodka-masshtabnyh-gornyh-vyrabotok-dlya-vskrytiya-novyh-rudnyh-zalezhey/detail" class="text-decoration-none text-dark">
+                                        На руднике «Скалистый» ведется проходка масштабных горных выработок для вскрытия новых рудных залежей
+                                    </a>
+                                </h5>
+                                <p class="card-text">
+                                    В Заполярном филиале ПАО «ГМК «Норильский никель» на руднике «Скалистый» реализуется с октября 2025 стратегически важный проект по проходке разведочной выработки РВ-3 и сооружению ключевых горных объектов на глубинах около 2000 метров. Работы ведутся в рамках проекта «Рудник «Скалистый» и направлены...
+                                </p>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <a href="https://thyssenmining.ru/news/na-rudnike-skalistyy-vedetsya-prohodka-masshtabnyh-gornyh-vyrabotok-dlya-vskrytiya-novyh-rudnyh-zalezhey/detail" class="btn btn-outline-primary btn-sm">
+                                    Читать далее
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                                        <div class="col-12 col-md-6 col-lg-4 mb-2  ">
+                        <div class="card h-100 news-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <small class="text-muted">17.10.2025</small>
+                                </div>
+                                <h5 class="card-title">
+                                    <a href="https://thyssenmining.ru/news/ot-kontrolya-k-partnyorstvu-kak-izmenilsya-dialog-o-promyshlennoy-bezopasnosti/detail" class="text-decoration-none text-dark">
+                                        От контроля — к партнёрству: как изменился диалог о промышленной безопасности
+                                    </a>
+                                </h5>
+                                <p class="card-text">
+                                    &nbsp; &nbsp; 15&ndash;16 октября 2025г. состоялся форум &laquo;Промышленная безопасность и охрана труда. Подрядчики. От контроля к партнёрству&raquo;, организованный ПАО &laquo;ГМК &laquo;Норильский никель&raquo; в городе Норильск, в котором приняла участие и наша компания.&nbsp; &nbsp;
+&nbsp; &nb...
+                                </p>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <a href="https://thyssenmining.ru/news/ot-kontrolya-k-partnyorstvu-kak-izmenilsya-dialog-o-promyshlennoy-bezopasnosti/detail" class="btn btn-outline-primary btn-sm">
+                                    Читать далее
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                                        <div class="col-12 col-md-6 col-lg-4 mb-2  d-none d-md-block  ">
+                        <div class="card h-100 news-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <small class="text-muted">20.09.2025</small>
+                                </div>
+                                <h5 class="card-title">
+                                    <a href="https://thyssenmining.ru/news/na-rudnike-skalistyy-startovalo-stroitelstvo-klyuchevogo-infrastrukturnogo-uzla-na-gorizonte-1750-metrov/detail" class="text-decoration-none text-dark">
+                                        На руднике «Скалистый» стартовало строительство ключевого инфраструктурного узла на горизонте -1750 метров
+                                    </a>
+                                </h5>
+                                <p class="card-text">
+                                    Околоствольный двор станет основой для запуска комплекса скипового подъема руды с глубоких горизонтов.&nbsp;
+На руднике &laquo;Скалистый&raquo; Заполярного филиала ПАО &laquo;ГМК &laquo;Норильский никель&raquo; дан старт ключевому этапу освоения глубоких горизонтов. На горизонте -1750 метров ствола...
+                                </p>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <a href="https://thyssenmining.ru/news/na-rudnike-skalistyy-startovalo-stroitelstvo-klyuchevogo-infrastrukturnogo-uzla-na-gorizonte-1750-metrov/detail" class="btn btn-outline-primary btn-sm">
+                                    Читать далее
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                                        <div class="col-12 col-md-6 col-lg-4 mb-2  d-none d-md-block   d-md-none d-lg-block ">
+                        <div class="card h-100 news-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <small class="text-muted">01.06.2025</small>
+                                </div>
+                                <h5 class="card-title">
+                                    <a href="https://thyssenmining.ru/news/na-glubine-dvuh-kilometrov-pod-norilskom-postroen-podzemnyy-kompleks-dlya-buduschey-dobychi-1/detail" class="text-decoration-none text-dark">
+                                        На глубине двух километров под Норильском построен подземный комплекс для будущей добычи.
+                                    </a>
+                                </h5>
+                                <p class="card-text">
+                                    Масштабные горно-капитальные работы создали инфраструктурный задел для будущей добычи на новых горизонтах, укрепляя долгосрочную сырьевую базу компании.
+&nbsp;&nbsp;&nbsp;&nbsp; В Заполярном филиале ПАО «ГМК «Норильский никель» успешно завершен один из самых сложных этапов проекта по освоению глубо...
+                                </p>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <a href="https://thyssenmining.ru/news/na-glubine-dvuh-kilometrov-pod-norilskom-postroen-podzemnyy-kompleks-dlya-buduschey-dobychi-1/detail" class="btn btn-outline-primary btn-sm">
+                                    Читать далее
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                                        <div class="col-12 col-md-6 col-lg-4 mb-2  d-none d-md-block   d-md-none d-lg-block ">
+                        <div class="card h-100 news-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <small class="text-muted">25.10.2024</small>
+                                </div>
+                                <h5 class="card-title">
+                                    <a href="https://thyssenmining.ru/news/xii-uralskiy-gornopromyshlennyy-forum-rudnik-buduschego-tehnologicheskoe-liderstvo/detail" class="text-decoration-none text-dark">
+                                        XII Уральский горнопромышленный форум «Рудник будущего. Технологическое лидерство»
+                                    </a>
+                                </h5>
+                                <p class="card-text">
+                                    
+
+Рудник Урала 2024
+С 23 по 25 октября в Екатеринбурге состоялась международная выставка оборудования и технологий для горнодобывающей отрасли и горнопромышленный форум &laquo;Рудник 2024&raquo;.&nbsp;
+На три дня выставочный центр &laquo;Екатеринбург-Экспо&raquo; объединил производителей, постав...
+                                </p>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <a href="https://thyssenmining.ru/news/xii-uralskiy-gornopromyshlennyy-forum-rudnik-buduschego-tehnologicheskoe-liderstvo/detail" class="btn btn-outline-primary btn-sm">
+                                    Читать далее
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                                    </div>
+                <div class="text-center mt-4">
+                    <a href="https://thyssenmining.ru/news" class="btn btn-primary">
+                        Все новости
+                    </a>
+                </div>
+                            </div>
+        </div>
+    </div>
+    <div class="bg-item slide-4" id="slide4">
+        <div class="container">
+            <div class="row h-50px align-items-end">
+                <div class="col-5 contact-title align-middle">Контакты</div>
+                <div class="col-7 home-slide-two_mode_content_panel_tab_panel">
+                    <div class="nav contact-tabs">
+                        <div class="nav-item active" id="slide1">МОСКВА</div>
+                        <div class="nav-item" id="slide2">КОТЕЛЬНИКОВО</div>
+                        <div class="nav-item" id="slide3">БЕРЕЗНИКИ</div>
+                        <div class="nav-item" id="slide4">НОРИЛЬСК</div>
+                    </div>
+                </div>
+            </div>
+            <div class="contact-divider"></div>
+            <div class="g-4 mt-2 content_container contacts-container">
+                <!-- Левая часть -->
+                <div class="col-lg-5 col-md-6">
+                    <div class="mb-3 info_company">
+                        <p>
+                            Открыты для сотрудничества и готовы реализовать ваши
+                            грандиозные проекты.
+                        </p>
+                        <p>
+                            Мы ценим каждого клиента и стремимся к долгосрочному
+                            партнерству.
+                        </p>
+                        <p>
+                            Всегда на связи<br />
+                            <span class="contact-green fs-4"><a href="tel:88002345866">8 800 234 58 66</a></span><br />
+                            Напишите нам, обязательно ответим<br />
+                            <span class="contact-email">info@thyssenmining.ru</span>
+                        </p>
+                    </div>
+                </div>
+                <!-- Центр (фото) -->
+                <div
+                    class="col-lg-3 col-md-6 d-flex flex-column align-items-center"
+                >
+                    <img
+                        src="/images/contacts-slide-img.jpg"
+                        alt="Thyssen Office"
+                        class="contact-img mb-3"
+                    />
+                </div>
+                <!-- Правая часть (инфо и карта) -->
+                <div class="right_side_info">
+                    <div class="mb-2 mt-2">
+                        <span class="fw-bold">Офис в г. Москва</span><br />
+                        ул. Петровка, д. 27, этаж 3
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer class="footer_bg text-white" id="main-footer">
+    <div class="footer_content">
+        <div class="footer_left_content">
+            <div class="d-flex align-items-center">
+                <div class="info_footer" id="textFooter">
+                    ИНН 2457066477<br />
+                    КПП 770701001<br />
+                </div>
+            </div>
+            <div class="d-flex align-items-center">
+                <div class="info_footer" id="textFooter">
+                    ООО "ТМКИ"<br />
+                    ОГРН 1082457000999<br />
+                </div>
+            </div>
+        </div>
+        <div class="d-flex w-50 justify-content-end">
+            <div class="btn_change">
+                <span class="btn-up">▲</span>
+                <span class="btn-down">▼</span>
+            </div>
+            <div class="slide-counter">
+                <span class="current-slide">01</span>
+                <span class="total-slides">05</span>
+            </div>
+        </div>
+    </div>
+</footer>
+<!-- Модальное окно: Заказать обратный звонок -->
+<div class="modal call-modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h3>Заказать обратный звонок</h3>
+        <form method="POST" action="https://thyssenmining.ru/email/send" enctype="multipart/form-data">
+            <input type="hidden" name="_token" value="obELs8VZNUhbPzXsifzcIo0Udku7EBqAvrdaLo6V" autocomplete="off">            <input type="hidden" name="form_title" value="Заявить о проекте" required />
+            <input type="text" name="name" placeholder="ФИО*" required />
+            <input type="tel" name="phone" id="phone2" placeholder="Телефон*" required />
+            <input type="email" name="email" placeholder="E-mail" />
+            <div class="smart-captcha" data-sitekey="ysc1_JTflPNP3PyAoOaQBesbEZI53baPfqw9DUBtdP8Kc5287efa5" data-callback="onCaptchaCall"></div>
+<input type="hidden" name="smart-token" id="smart-token-call" value="">
+                        <button type="submit">Отправить</button>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+(function() {
+    window.onCaptchaCall = function(token) { var el = document.getElementById('smart-token-call'); if (el) el.value = token; };
+    window.onCaptchaCareer = function(token) { var el = document.getElementById('smart-token-career'); if (el) el.value = token; };
+    window.onCaptchaProject = function(token) { var el = document.getElementById('smart-token-project'); if (el) el.value = token; };
+    window.onCaptchaSubscribe = function(token) { var el = document.getElementById('smart-token-subscribe'); if (el) el.value = token; };
+})();
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        // === Бургер меню ===
+        const burger = document.getElementById("burger");
+        const navMenu = document.getElementById("main-nav");
+
+        if (burger && navMenu) {
+            burger.addEventListener("click", function () {
+                navMenu.classList.toggle("open");
+            });
+
+            // Закрытие меню при клике вне его области
+            document.addEventListener("click", function (event) {
+                const isClickInside =
+                    navMenu.contains(event.target) || burger.contains(event.target);
+                if (!isClickInside && navMenu.classList.contains("open")) {
+                    navMenu.classList.remove("open");
+                }
+            });
+
+            // Закрытие меню при клике на пункт навигации
+            document.querySelectorAll(".nav-link").forEach((link) => {
+                link.addEventListener("click", () => {
+                    navMenu.classList.remove("open");
+                });
+            });
+        }
+
+        // === Модальное окно get_call ===
+        function openModal(modal) {
+            if (modal) modal.style.display = "flex";
+        }
+
+        function closeModal(modal) {
+            if (modal) modal.style.display = "none";
+        }
+
+        const callModal = document.querySelector(".call-modal");
+
+        document.querySelector(".get_call")?.addEventListener("click", (e) => {
+            e.preventDefault();
+            openModal(callModal);
+        });
+
+        document.querySelectorAll(".close").forEach((span) => {
+            span.addEventListener("click", () => {
+                closeModal(span.closest(".modal"));
+            });
+        });
+
+        window.addEventListener("click", (e) => {
+            if (e.target.classList.contains("modal")) {
+                closeModal(e.target);
+            }
+        });
+
+        // === Слайдер проектов ===
+        const slides = document.getElementById("slides");
+        const slide = document.getElementById("slide3");
+        const content = document.getElementById("content");
+        const titleEl = document.getElementById("title");
+        const textEl = document.getElementById("text");
+        const rightSideInfo = document.querySelector(".right_side_info");
+        const allSlides = document.querySelectorAll(".bg-item");
+        let currentIndex = 0;
+        let projectIndex = 0;
+        let isScrolling = false;
+
+        const slideData = [
+            {
+                title: "СКРУ-2",
+                text: "Строительство сухих калийных стволов с нулевым водопритоком: от проектирования до сдачи в эксплуатацию. Доказанная надежность для Вашего рудника.",
+                bg: "url(/images/skru-2.jpg)",
+                href: "/project/SKRY",
+            },
+            {
+                title: "СКС-1",
+                text: "Ствол СКС-1 для рудника «Скалистый»: сдаем самые глубокие стволы Евразии точно в срок: проектирование, строительство, оборудование, обучение Ваших специалистов.",
+                bg: "url(/images/sks-1.jpg)",
+                href: "/project/SKS1",
+            },
+            {
+                title: "ВС-10",
+                text: "Глубина ствола 2000+ метров – не предел, а наш рабочий стандарт: строительство ВС-10 с готовыми решениями для Вашего рудника. Гарантия надежности, сроков и минимальных эксплуатационных затрат.",
+                bg: "url(/images/vs-10.jpg)",
+                href: "/project/BC",
+            },
+            {
+                title: "ГОК",
+                text: "Мировой рекорд замораживания горных пород до отметки 827 м – Ваш страховой полис от рисков, нештатных ситуаций и долгостроя при проходке стволов в сложных условиях.",
+                bg: "url(/images/gremyachka.jpg)",
+                href: "/project/GOK",
+            },
+        ];
+
+        const slideWidth = 390;
+        const totalSlides = slideData.length;
+
+        function updateCountNumberSlide() {
+            const currentSlideElement = document.querySelector(".current-slide");
+            const totalSlidesElement = document.querySelector(".total-slides");
+            const formattedCurrent = String(currentIndex + 1).padStart(2, "0");
+            const totalSlidesCount = allSlides.length;
+            if (currentSlideElement)
+                currentSlideElement.textContent = formattedCurrent;
+            if (totalSlidesElement)
+                totalSlidesElement.textContent = String(totalSlidesCount).padStart(
+                    2,
+                    "0"
+                );
+        }
+        window.addEventListener(
+            "resize",
+            function (event) {
+                allSlides[currentIndex].scrollIntoView(true);
+            },
+            true
+        );
+        function updateHeaderTheme(index) {
+            const header = document.getElementById("main-header");
+            const footer = document.getElementById("main-footer");
+            const logo = document.querySelector(".logo_img");
+            const btnChange = document.querySelector(".btn_change");
+            if (!header || !footer || !btnChange) return;
+            // index 3 = новости (slide-5), index 4 = контакты (slide-4)
+            index === 3 || index === 4
+                ? footer.classList.add("black-theme")
+                : footer.classList.remove("black-theme");
+            if (index === 0 || index === 2) {
+                header.classList.remove("black-theme");
+                btnChange.classList.remove("black-theme");
+            } else {
+                header.classList.add("black-theme");
+                btnChange.classList.add("black-theme");
+            }
+
+            if (index === 3 || index === 4) {
+                setTimeout(fn => logo.src = '/images/logo_black.png', 400)
+            } else {
+                setTimeout(fn => logo.src = '/images/logo_white.png', 100)
+            }
+
+            if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|BB|PlayBook|IEMobile|Windows Phone|Kindle|Silk|Opera Mini/i.test(navigator.userAgent)) {
+                if (index === 0 ) {
+                    setTimeout(fn => logo.src = '/images/logo_black.png', 100)
+                    header.classList.add("black-theme");
+                }
+                if (index === 1 ) {
+                    setTimeout(fn => logo.src = '/images/logo_black.png', 100)
+                    btnChange.classList.remove("black-theme");
+                    header.classList.add("black-theme");
+                }
+                if (index === 2 ) {
+                    setTimeout(fn => logo.src = '/images/logo_white.png', 300)
+                    btnChange.classList.remove("black-theme");
+                }
+                if (index === 3 || index === 4) {
+                    setTimeout(fn => logo.src = '/images/logo_black.png', 100)
+                    header.classList.add("black-theme");
+                }
+            }
+
+
+        }
+
+        updateHeaderTheme(currentIndex);
+
+        function getVisibleIndexes(centerIndex) {
+            const half = 0;
+            const indexes = [];
+            for (let i = -half; i <= half; i++) {
+                const index = centerIndex + i;
+                if (index >= 0 && index < totalSlides) {
+                    indexes.push(index);
+                }
+            }
+            while (indexes.length < 3) {
+                if (indexes[0] === 0) {
+                    indexes.push(indexes[indexes.length - 1] + 1);
+                } else {
+                    indexes.unshift(indexes[0] - 1);
+                }
+            }
+            return indexes;
+        }
+
+        // Прокрутка колесом
+        window.addEventListener("wheel", (e) => {
+            if (isScrolling) return;
+            if (e.deltaY > 0) {
+                currentIndex++;
+            } else {
+                currentIndex--;
+            }
+            currentIndex = Math.max(
+                0,
+                Math.min(allSlides.length - 1, currentIndex)
+            );
+            scrollToSlide(currentIndex);
+            updateHeaderTheme(currentIndex);
+            updateCountNumberSlide();
+        });
+
+        function scrollToSlide(index) {
+            if (isScrolling || index < 0 || index >= allSlides.length) return;
+            isScrolling = true;
+            allSlides[index].scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+            });
+            // Уменьшена задержка для быстрого переключения слайдов
+            setTimeout(() => {
+                isScrolling = false;
+            }, 300);
+        }
+
+        // Кнопки навигации слайдера
+        document.querySelectorAll(".slider-nav-btn").forEach((btn) => {
+            btn.addEventListener("click", () => {
+                const direction = btn.getAttribute("data-direction");
+                if (direction === "prev" && projectIndex > 0) {
+                    projectIndex--;
+                    updateSlider();
+                } else if (direction === "next" && projectIndex < totalSlides - 1) {
+                    projectIndex++;
+                    updateSlider();
+                }
+            });
+        });
+        function updateSlider() {
+            const visibleIndexes = getVisibleIndexes(projectIndex);
+            const offset = visibleIndexes[0];
+
+            const button_about = document.querySelector(".btn-project-detail");
+            button_about.href = slideData[projectIndex]['href'];
+
+            if (slides)
+                slides.style.transform = `translateX(-${offset * slideWidth}px)`;
+            const data = slideData[projectIndex];
+            if (titleEl) titleEl.textContent = data.title;
+            if (textEl) textEl.textContent = data.text;
+            if (slide) {
+                slide.style.background = `
+      linear-gradient(346.37deg, rgba(0, 0, 0, 0.5) 10%, rgba(0, 0, 0, 0.6) 100%),
+      ${data.bg}
+    `;
+                slide.style.backgroundSize = "cover";
+                slide.style.backgroundPosition = "center";
+            }
+            Array.from(slides.children).forEach((slideEl) =>
+                slideEl.classList.remove("active")
+            );
+            if (slides.children[projectIndex]) {
+                slides.children[projectIndex].classList.add("active");
+            }
+            // Обновляем состояние кнопок
+            updateSliderButtons();
+        }
+
+        function updateSliderButtons() {
+            const prevBtns = document.querySelectorAll(".slider-nav-btn.prev");
+            const nextBtns = document.querySelectorAll(".slider-nav-btn.next");
+
+            prevBtns.forEach((btn) => {
+                btn.classList.toggle("disabled", projectIndex === 0);
+                btn.style.pointerEvents = projectIndex === 0 ? "none" : "auto";
+            });
+
+            nextBtns.forEach((btn) => {
+                btn.classList.toggle("disabled", projectIndex === totalSlides - 1);
+                btn.style.pointerEvents =
+                    projectIndex === totalSlides - 1 ? "none" : "auto";
+            });
+        }
+        // === Табы контактов ===
+        const tabs = document.querySelectorAll(".contact-tabs .nav-item");
+        const infoData = {
+            slide1: {
+                office: "Офис в г. Москва",
+                address: "ул. Петровка, д. 27, этаж 3",
+                mapSrc: 'https://api-maps.yandex.ru/services/constructor/1.0/js/?um=constructor%3Ac0be08a160d3f052379db183b4bc93ca8fd080faf66da320729f383c8db82f58&width=100%&height=250&lang=ru_RU&scroll=true>',
+            },
+            slide2: {
+                office: "Офис в г. Котельниково",
+                address:
+                    "Волгоградская область, г. Котельниково, улица Баранова, 11б, офис №5",
+                phone: "+7-961-063-66-23",
+                email: "Kononov.Dmitri@ts-gruppe.com",
+                mapSrc: 'https://api-maps.yandex.ru/services/constructor/1.0/js/?um=constructor%3Ad8306475a7af6017f2163a13771b8cb37408342f67f82832b7b912fba0fb6e82&width=100%&height=250&lang=ru_RU&scroll=true',
+            },
+            slide3: {
+                office: "Офис в г. Березники",
+                address:
+                    "Пермский край г. Березники, ул. Новосодовая, корпус 10, строение 2",
+                phone: "+7-912-488-07-42",
+                email: "sekretariat.berezniki@thyssenmining.ru",
+                mapSrc: 'https://api-maps.yandex.ru/services/constructor/1.0/js/?um=constructor%3A1cf8634c6db6d3fbf03af0b326a146f35227aad7c1be2b6d110d58ed9730cd9c&width=100%&height=250&lang=ru_RU&scroll=true',
+            },
+            slide4: {
+                office: "Офис в г. Норильск",
+                address: "Красноярский край, г. Норильск, ул. Михаила Кравца, д.4",
+                phone: "+7-903-929-97-31",
+                email: "sekretariat.norilsk@thyssenmining.ru",
+                mapSrc: 'https://api-maps.yandex.ru/services/constructor/1.0/js/?um=constructor%3Afe787a03f6b22cc431438dfee9728e2c5673216b3fbbbf2494efc55eca994bef&width=100%&height=250&lang=ru_RU&scroll=true',
+            },
+        };
+
+        tabs.forEach((tab) => {
+            tab.addEventListener("click", () => {
+                tabs.forEach((t) => t.classList.remove("active"));
+                tab.classList.add("active");
+                const id = tab.id;
+                const data = infoData[id];
+                if (data && rightSideInfo) {
+                    let phoneHtml = '';
+                    let emailHtml = '';
+                    
+                    // Для Москвы (slide1) не показываем телефон и email
+                    if (id !== 'slide1') {
+                        if (data.phone && data.phone.trim() !== '') {
+                            phoneHtml = `<div class="mb-2">
+              <span class="fw-bold">Телефон</span><br />
+              ${data.phone}
+            </div>`;
+                        }
+                        
+                        if (data.email && data.email.trim() !== '') {
+                            emailHtml = `<div class="mb-2">
+              <span class="fw-bold">Email</span><br />
+              ${data.email}
+            </div>`;
+                        }
+                    }
+                    
+                    rightSideInfo.innerHTML = `
+            <div class="mb-2 mt-2">
+              <span class="fw-bold">${data.office}</span><br />
+              ${data.address}
+            </div>
+            ${phoneHtml}
+            ${emailHtml}
+          `;
+
+/*                    document.querySelector('.contacts-container').appendChild(yandexScript);*/
+                    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|BB|PlayBook|IEMobile|Windows Phone|Kindle|Silk|Opera Mini/i.test(navigator.userAgent)) {
+                        const yandexScript = document.createElement('script');
+                        yandexScript.setAttribute(
+                            'src',
+                            `${data.mapSrc}`
+                        );
+                        yandexScript.setAttribute(
+                            'height',
+                            '100'
+                        );
+                        yandexScript.addEventListener('load', () => {
+                            console.log('карта загружена');
+                        });
+/*                        let div = document.createElement("div")
+                        div.className = 'yandex-map-wrap';
+                        document.querySelector('.contacts-container').appendChild(div).appendChild(yandexScript);*/
+                        document.querySelector('.right_side_info').appendChild(yandexScript);
+                    } else {
+                        const yandexScript = document.createElement('script');
+                        yandexScript.setAttribute(
+                            'src',
+                            `${data.mapSrc}`
+                        );
+                        yandexScript.addEventListener('load', () => {
+                            console.log('карта загружена');
+                        });
+                        document.querySelector('.right_side_info').appendChild(yandexScript);
+                    }
+                }
+            });
+        });
+
+        document.querySelector(".contact-tabs .nav-item").click();
+
+        // === Кнопки вверх/вниз ===
+        document.querySelector(".btn-up")?.addEventListener("click", () => {
+            // Сбрасываем флаг блокировки для мгновенного переключения
+            isScrolling = false;
+            currentIndex--;
+            currentIndex = Math.max(
+                0,
+                Math.min(allSlides.length - 1, currentIndex)
+            );
+            scrollToSlide(currentIndex);
+            updateHeaderTheme(currentIndex);
+            updateCountNumberSlide();
+        });
+
+        document.querySelector(".btn-down")?.addEventListener("click", () => {
+            // Сбрасываем флаг блокировки для мгновенного переключения
+            isScrolling = false;
+            currentIndex++;
+            currentIndex = Math.max(
+                0,
+                Math.min(allSlides.length - 1, currentIndex)
+            );
+            scrollToSlide(currentIndex);
+            updateHeaderTheme(currentIndex);
+            updateCountNumberSlide();
+        });
+
+        // === Инициализация ===
+        updateSlider();
+        updateCountNumberSlide();
+
+        // === Предотвращение перехвата кликов на кнопке "Все новости" ===
+        const allNewsBtn = document.querySelector('.slide-5 .btn-primary');
+        if (allNewsBtn) {
+            allNewsBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+            allNewsBtn.addEventListener('touchend', (e) => {
+                e.stopPropagation();
+            });
+        }
+    });
+</script>
+</body>
+</html>
