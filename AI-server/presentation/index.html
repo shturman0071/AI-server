@@ -3,447 +3,1779 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Локальная AI-сеть — шахтостроение</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <title>Локальная AI-сеть — Board Presentation</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --navy: #0a1e3d;
-      --navy-mid: #0f2d5c;
-      --navy-deep: #051222;
-      --cyan: #00d4ff;
-      --cyan-glow: rgba(0, 212, 255, 0.45);
-      --silver: #b8cfe0;
-      --white: #ffffff;
-      --off: #eef3f9;
-      --muted: #7a94ad;
-      --glass: rgba(255,255,255,0.07);
-      --glass-b: rgba(0,212,255,0.22);
+      --bg: #E8ECF3;
+      --surface: #FFFFFF;
+      --surface-muted: #F4F7FB;
+      --ink: #0F172A;
+      --ink-soft: #1E293B;
+      --muted: #64748B;
+      --line: #E2E8F0;
+      --accent: #2563EB;
+      --accent-soft: #DBEAFE;
+      --cyan: #0891B2;
+      --cyan-soft: #CFFAFE;
+      --amber: #D97706;
+      --amber-soft: #FEF3C7;
+      --danger: #DC2626;
+      --danger-soft: #FEE2E2;
+      --success: #059669;
+      --success-soft: #D1FAE5;
+      --dark: #0B1220;
+      --dark-surface: #151D2E;
+      --dark-line: rgba(255,255,255,.1);
+      --radius: 20px;
+      --radius-sm: 12px;
+      --radius-xs: 8px;
+      --shadow: 0 8px 32px rgba(15,23,42,.07);
+      --shadow-sm: 0 2px 12px rgba(15,23,42,.05);
+      --pad-x: 52px;
+      --pad-y: 36px;
+      --footer-h: 44px;
+      --shadow-3d: 0 18px 36px rgba(15,23,42,.12), 0 6px 0 rgba(15,23,42,.06);
+      --shadow-3d-lg: 0 28px 50px rgba(15,23,42,.18), 0 10px 0 rgba(15,23,42,.08);
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Inter', sans-serif; background: #000; color: var(--white); }
-    .deck { scroll-snap-type: y mandatory; height: 100vh; overflow-y: scroll; }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'IBM Plex Sans', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      font-size: 16px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .deck {
+      scroll-snap-type: y mandatory;
+      height: 100vh;
+      overflow-y: scroll;
+    }
+
     .slide {
-      scroll-snap-align: start; min-height: 100vh; position: relative;
-      overflow: hidden; padding: 52px 64px 72px;
-      display: flex; flex-direction: column;
+      scroll-snap-align: start;
+      min-height: 100vh;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      padding: var(--pad-y) var(--pad-x) calc(var(--footer-h) + 16px);
+      overflow: hidden;
     }
-    .slide--dark { background: linear-gradient(160deg, var(--navy-deep), var(--navy) 55%, #123a6e); }
-    .slide--light { background: var(--off); color: var(--navy); }
-    .bg {
-      position: absolute; inset: 0; background-size: cover; background-position: center; z-index: 0;
+
+    .slide--light { background: var(--bg); }
+    .slide--dark {
+      background: radial-gradient(ellipse 120% 80% at 100% 0%, #1a2744 0%, var(--dark) 55%);
+      color: #F8FAFC;
     }
-    .bg::after {
-      content: ''; position: absolute; inset: 0;
-      background: linear-gradient(115deg,
-        rgba(5,18,34,0.92) 0%,
-        rgba(10,30,61,0.78) 45%,
-        rgba(0,100,140,0.42) 100%);
+
+    .slide__top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 2;
+      flex-shrink: 0;
+      min-height: 36px;
     }
-    .bg--soft::after {
-      background: linear-gradient(180deg, rgba(5,18,34,0.55) 0%, rgba(10,30,61,0.88) 100%);
+    .slide--dark:first-child .slide__top { justify-content: flex-end; margin-bottom: 0; min-height: 0; }
+
+    .slide__top--center {
+      justify-content: center;
+      text-align: center;
+      position: relative;
     }
-    .inner { position: relative; z-index: 2; flex: 1; display: flex; flex-direction: column; }
-    .tag {
-      font-size: 11px; font-weight: 700; letter-spacing: 0.28em;
-      text-transform: uppercase; color: var(--cyan); margin-bottom: 14px;
+    .slide__top--center .slide__titles { align-items: center; }
+    .slide__top--center .slide__num {
+      position: absolute;
+      right: 0;
+      top: 0;
     }
-    .slide--light .tag { color: #0088aa; }
-    .rule { width: 72px; height: 3px; background: var(--cyan); margin: 18px 0 28px; }
-    h1 {
-      font-size: clamp(40px, 5.5vw, 76px); font-weight: 900;
-      line-height: 0.98; text-transform: uppercase; letter-spacing: -0.03em;
+
+    .slide__titles { display: flex; flex-direction: column; gap: 8px; }
+
+    .eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--accent);
     }
-    h2 {
-      font-size: clamp(30px, 3.8vw, 52px); font-weight: 900;
-      line-height: 1.05; text-transform: uppercase; letter-spacing: -0.02em;
+
+    .slide--dark .eyebrow { color: #60A5FA; }
+    .eyebrow--danger { color: var(--danger); font-family: Outfit, sans-serif; font-size: 13px; letter-spacing: .14em; }
+
+    h1, h2, h3 {
+      font-family: Outfit, sans-serif;
+      font-weight: 700;
+      letter-spacing: -.02em;
+      line-height: 1.1;
     }
+
+    h1 { font-size: clamp(48px, 5.8vw, 78px); font-weight: 800; }
+    h2 { font-size: clamp(32px, 3.6vw, 48px); }
+    h3 { font-size: 17px; font-weight: 700; }
+
     .lead {
-      font-size: 19px; font-weight: 300; line-height: 1.55;
-      color: var(--silver); max-width: 680px; margin-top: 22px;
+      font-size: 19px;
+      color: var(--muted);
+      max-width: 640px;
+      margin-top: 4px;
     }
-    .slide--light .lead { color: #4a6278; }
+
+    .slide--dark .lead { color: rgba(248,250,252,.7); }
+
+    .slide__num {
+      flex-shrink: 0;
+      font-family: Outfit, sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: var(--surface);
+      color: var(--muted);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--line);
+    }
+
+    .slide--dark .slide__num {
+      background: var(--dark-surface);
+      border-color: var(--dark-line);
+      color: rgba(248,250,252,.55);
+    }
+
+    .body {
+      position: relative;
+      z-index: 2;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      gap: 16px;
+    }
+
+    .body--center { justify-content: center; }
+    .body--fill { flex: 1; justify-content: stretch; }
+
     .footer {
-      position: absolute; bottom: 0; left: 0; right: 0;
-      padding: 14px 64px; font-size: 11px; letter-spacing: 0.06em;
-      color: rgba(255,255,255,0.35); display: flex; justify-content: space-between;
-      background: linear-gradient(0deg, rgba(0,0,0,0.35), transparent);
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: var(--footer-h);
+      padding: 0 var(--pad-x);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      z-index: 3;
     }
-    .slide--light .footer { color: #8aa0b5; background: none; }
-    .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 28px; }
-    .g3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 24px; }
-    .g4 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin-top: 24px; }
+
+    .slide--dark .footer {
+      color: rgba(248,250,252,.35);
+      border-color: var(--dark-line);
+    }
+
+    /* Cards */
     .card {
-      background: var(--glass); border: 1px solid var(--glass-b);
-      border-radius: 14px; padding: 22px 24px; backdrop-filter: blur(14px);
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-3d);
+      padding: 28px 32px;
+      transform: perspective(1200px) rotateX(1deg);
+      transition: transform .25s ease, box-shadow .25s ease;
     }
-    .slide--light .card {
-      background: var(--white); border: 1px solid #d8e4ef;
-      box-shadow: 0 12px 40px rgba(10,30,61,0.07);
+
+    .card:hover { transform: perspective(1200px) rotateX(0deg) translateY(-2px); box-shadow: var(--shadow-3d-lg); }
+
+    .slide--dark .card {
+      background: linear-gradient(145deg, #1a2438 0%, var(--dark-surface) 100%);
+      border-color: var(--dark-line);
+      box-shadow: 0 20px 40px rgba(0,0,0,.35), 0 6px 0 rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.06);
     }
-    .card .n { font-size: 40px; font-weight: 900; color: var(--cyan); line-height: 1; }
-    .slide--light .card .n { color: #0099bb; }
-    .card h3 { font-size: 15px; font-weight: 800; text-transform: uppercase; margin: 10px 0 6px; letter-spacing: 0.04em; }
-    .card p { font-size: 13px; line-height: 1.5; color: var(--muted); }
-    .slide--light .card p { color: #5a7288; }
-    .hero { flex: 1; display: flex; flex-direction: column; justify-content: center; max-width: 820px; }
-    .hero h1 { font-size: clamp(48px, 7vw, 88px); }
-    .pill {
-      display: inline-flex; margin-top: 28px; padding: 10px 22px;
-      border: 1px solid var(--cyan); border-radius: 999px;
-      font-size: 12px; font-weight: 700; letter-spacing: 0.12em;
-      text-transform: uppercase; color: var(--cyan);
-      background: rgba(0,212,255,0.08);
+
+    .slide--dark .card:hover {
+      box-shadow: 0 28px 56px rgba(0,0,0,.45), 0 8px 0 rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.08);
     }
-    .stats { display: flex; gap: 56px; margin-top: 44px; }
-    .stat-v { font-size: 48px; font-weight: 900; color: var(--cyan); line-height: 1; }
-    .stat-l { font-size: 13px; color: var(--muted); margin-top: 6px; max-width: 160px; }
-    /* 3D cylinders like MMK */
-    .cyl-wrap { display: flex; align-items: flex-end; gap: 28px; height: 200px; margin-top: 20px; }
-    .cyl { width: 56px; border-radius: 8px 8px 4px 4px; position: relative;
-      background: linear-gradient(90deg, #1a5a8a, #3dc8f0 45%, #1a5a8a);
-      box-shadow: 0 0 24px var(--cyan-glow), inset 0 2px 0 rgba(255,255,255,0.35);
+
+    .card__label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 20px;
     }
-    .cyl::before {
-      content: ''; position: absolute; top: -10px; left: 0; right: 0; height: 20px;
-      border-radius: 50%; background: linear-gradient(180deg, #5ee0ff, #1a8ab8);
+
+    .slide--dark .card__label { color: rgba(248,250,252,.45); }
+
+    /* Chips */
+    .chips { display: flex; flex-wrap: wrap; gap: 10px; }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 10px 16px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid #BFDBFE;
     }
-    .cyl-lbl { font-size: 11px; color: var(--muted); text-align: center; margin-top: 10px; max-width: 70px; }
-    .cyl-item { display: flex; flex-direction: column; align-items: center; }
-  /* Hub diagram */
-    .network { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 480px; }
-    .network svg { width: 100%; max-width: 1100px; height: auto; }
-    .node-box { fill: rgba(10,30,61,0.85); stroke: rgba(0,212,255,0.5); stroke-width: 1.5; }
-    .node-center { fill: url(#cg); stroke: #00d4ff; stroke-width: 2; filter: drop-shadow(0 0 18px rgba(0,212,255,0.5)); }
-    .link { stroke: url(#lg); stroke-width: 2; fill: none; opacity: 0.85; }
-    .link-pulse { stroke: rgba(0,212,255,0.25); stroke-width: 4; fill: none; }
-    .node-t { fill: #fff; font-family: Inter, sans-serif; font-weight: 800; font-size: 15px; text-anchor: middle; }
-    .node-s { fill: #8ba3bc; font-family: Inter, sans-serif; font-size: 11px; text-anchor: middle; }
-    /* Split slide */
-    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 0; flex: 1; margin: 0 -64px; margin-top: 24px; }
-    .split__img {
-      background-size: cover; background-position: center; position: relative; min-height: 380px;
+
+    .slide--dark .chip {
+      background: rgba(37,99,235,.15);
+      border-color: rgba(96,165,250,.25);
+      color: #93C5FD;
     }
-    .split__img::after {
-      content: ''; position: absolute; inset: 0;
-      background: linear-gradient(90deg, transparent, rgba(238,243,249,0.15));
+
+    /* Horizontal bars — 3D */
+    .hbar-list { display: flex; flex-direction: column; gap: 22px; }
+    .hbar-row { display: grid; grid-template-columns: 180px 1fr 80px; gap: 18px; align-items: center; }
+    .hbar-row__label { font-size: 16px; font-weight: 600; color: var(--ink-soft); }
+    .slide--dark .hbar-row__label { color: #E2E8F0; }
+    .hbar-row__track {
+      height: 44px;
+      background: linear-gradient(180deg, #e2e8f0 0%, #f1f5f9 40%, #cbd5e1 100%);
+      border-radius: 10px;
+      overflow: visible;
+      border: 1px solid #cbd5e1;
+      box-shadow: inset 0 3px 6px rgba(15,23,42,.12), 0 4px 0 #94a3b8;
+      perspective: 500px;
     }
-    .split__body { padding: 40px 48px; display: flex; flex-direction: column; justify-content: center; }
-    .slide--light .split__img::after {
-      background: linear-gradient(90deg, rgba(238,243,249,0.3), transparent);
+    .slide--dark .hbar-row__track {
+      background: linear-gradient(180deg, rgba(255,255,255,.08) 0%, rgba(255,255,255,.04) 100%);
+      border-color: var(--dark-line);
+      box-shadow: inset 0 3px 8px rgba(0,0,0,.3), 0 4px 0 rgba(0,0,0,.25);
     }
-    .arch-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 24px; margin-top: 20px; }
-    .site-row {
-      display: flex; align-items: center; gap: 16px;
-      padding: 16px 20px; margin-bottom: 12px;
-      background: var(--white); border: 1px solid #d8e4ef; border-radius: 12px;
-      border-left: 4px solid var(--cyan);
+    .hbar-row__fill {
+      height: 100%;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      padding-left: 16px;
+      font-family: Outfit, sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      min-width: 52px;
+      transform: rotateX(6deg);
+      transform-origin: bottom center;
+      text-shadow: 0 1px 2px rgba(0,0,0,.25);
     }
-    .site-row strong { font-size: 14px; text-transform: uppercase; }
-    .site-row span { font-size: 12px; color: #5a7288; }
-    .dark-panel {
-      background: linear-gradient(145deg, var(--navy-deep), var(--navy-mid));
-      border-radius: 16px; padding: 28px 32px; color: #fff;
-      border: 1px solid rgba(0,212,255,0.2);
+    .hbar-row__fill--blue {
+      background: linear-gradient(180deg, #60A5FA 0%, #2563EB 55%, #1d4ed8 100%);
+      box-shadow: 0 6px 0 #1e40af, 0 14px 24px rgba(37,99,235,.4), inset 0 2px 0 rgba(255,255,255,.35);
     }
-    .dark-panel h3 { color: var(--cyan); font-size: 16px; text-transform: uppercase; margin-bottom: 16px; }
-    .dark-panel li { font-size: 14px; margin-bottom: 10px; list-style: none; padding-left: 0; }
-    .steps { list-style: none; margin-top: 24px; }
-    .steps li { display: flex; gap: 20px; margin-bottom: 26px; align-items: flex-start; }
-    .sn {
-      width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
-      background: var(--cyan); color: var(--navy); font-weight: 900;
-      display: flex; align-items: center; justify-content: center; font-size: 18px;
+    .hbar-row__fill--cyan {
+      background: linear-gradient(180deg, #67E8F9 0%, #0891B2 55%, #0e7490 100%);
+      box-shadow: 0 6px 0 #155e75, 0 14px 24px rgba(8,145,178,.4), inset 0 2px 0 rgba(255,255,255,.35);
     }
-    .steps h3 { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
-    .steps p { font-size: 14px; color: var(--silver); }
-    .metric-big { font-size: 64px; font-weight: 900; color: var(--cyan); line-height: 1; }
-    .slide--light .metric-big { color: #0099bb; }
-    .deco-ring {
-      position: absolute; border-radius: 50%; border: 1px solid rgba(0,212,255,0.15);
+    .hbar-row__fill--amber {
+      background: linear-gradient(180deg, #FDE68A 0%, #D97706 55%, #b45309 100%);
+      box-shadow: 0 6px 0 #92400e, 0 14px 24px rgba(217,119,6,.35), inset 0 2px 0 rgba(255,255,255,.4);
+      color: #1E293B;
+      text-shadow: none;
+    }
+    .hbar-row__pct { font-family: Outfit, sans-serif; font-size: 22px; font-weight: 800; color: var(--accent); text-align: right; }
+    .slide--dark .hbar-row__pct { color: #60A5FA; }
+
+    /* Metric grid */
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+    }
+    .metric-tile {
+      padding: 28px 26px;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(145deg, #fff 0%, var(--surface-muted) 100%);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-3d);
+      transform: perspective(800px) rotateX(4deg) rotateY(-1deg);
+      transition: transform .2s ease;
+    }
+    .metric-tile:hover { transform: perspective(800px) rotateX(0deg) translateY(-4px); }
+    .slide--dark .metric-tile {
+      background: linear-gradient(145deg, rgba(255,255,255,.08) 0%, rgba(255,255,255,.02) 100%);
+      border-color: var(--dark-line);
+      box-shadow: 0 16px 32px rgba(0,0,0,.3), 0 5px 0 rgba(0,0,0,.15);
+    }
+    .metric-tile__val {
+      font-family: Outfit, sans-serif;
+      font-size: 36px;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 8px;
+      text-shadow: 0 2px 12px rgba(37,99,235,.25);
+    }
+    .slide--dark .metric-tile__val { color: #60A5FA; text-shadow: 0 0 24px rgba(96,165,250,.35); }
+    .metric-tile__lbl { font-size: 15px; font-weight: 600; color: var(--muted); }
+    .slide--dark .metric-tile__lbl { color: rgba(248,250,252,.55); }
+
+    /* Table */
+    .spec-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; font-size: 14px; }
+    .spec-table thead th {
+      text-align: left;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 0 16px 8px;
+    }
+    .spec-table tbody tr { box-shadow: var(--shadow-sm); }
+    .spec-table tbody td {
+      padding: 14px 18px;
+      background: var(--surface);
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      vertical-align: middle;
+    }
+    .spec-table tbody td:first-child { border-left: 1px solid var(--line); border-radius: var(--radius-xs) 0 0 var(--radius-xs); font-weight: 600; }
+    .spec-table tbody td:last-child {
+      border-right: 1px solid var(--line);
+      border-radius: 0 var(--radius-xs) var(--radius-xs) 0;
+      text-align: right;
+      font-family: Outfit, sans-serif;
+      font-weight: 700;
+      color: var(--accent);
+      white-space: nowrap;
+    }
+    .spec-table tbody td:nth-child(2) { color: var(--muted); font-size: 12px; }
+    .spec-table tr.total td {
+      background: var(--ink);
+      color: #fff;
+      border-color: var(--ink);
+      font-weight: 700;
+    }
+    .spec-table tr.total td:last-child { color: #60A5FA; font-size: 15px; }
+
+    /* Stat block */
+    .stat-block {
+      text-align: center;
+      padding: 32px 24px;
+      border-radius: var(--radius);
+      background: linear-gradient(145deg, var(--accent-soft), #fff);
+      border: 1px solid #BFDBFE;
+      box-shadow: var(--shadow-3d);
+      transform: perspective(800px) rotateX(3deg);
+    }
+    .stat-block__label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .stat-block__val {
+      font-family: Outfit, sans-serif;
+      font-size: 42px;
+      font-weight: 800;
+      color: var(--accent);
+      margin: 12px 0 6px;
+      line-height: 1;
+    }
+    .stat-block__sub { font-size: 13px; color: var(--muted); }
+
+    .scale-compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 4px;
+    }
+    .scale-item {
+      padding: 22px;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(180deg, #fff, var(--surface-muted));
+      border: 1px solid var(--line);
+      text-align: center;
+      box-shadow: 0 8px 0 #e2e8f0, 0 16px 28px rgba(15,23,42,.08);
+      transform: perspective(600px) rotateX(4deg);
+    }
+    .scale-item--big {
+      transform: perspective(600px) rotateX(2deg) scale(1.03);
+      box-shadow: 0 10px 0 #bfdbfe, 0 20px 36px rgba(37,99,235,.15);
+    }
+    .scale-item__val { font-family: Outfit, sans-serif; font-size: 26px; font-weight: 800; color: var(--ink); }
+    .scale-item--big .scale-item__val { font-size: 32px; color: var(--accent); }
+    .scale-item__lbl { font-size: 12px; color: var(--muted); margin-top: 4px; font-weight: 600; }
+
+    /* Pipeline steps */
+    .pipeline {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      align-items: stretch;
+    }
+    .pipe-step {
+      position: relative;
+      padding: 26px 18px;
+      text-align: center;
+      background: linear-gradient(180deg, #fff 0%, var(--surface-muted) 100%);
+      border: 1px solid var(--line);
+      box-shadow: 0 8px 0 #e2e8f0, 0 16px 28px rgba(15,23,42,.08);
+      transform: perspective(600px) rotateX(3deg);
+    }
+    .pipe-step:first-child { border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
+    .pipe-step:last-child { border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+    .pipe-step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      right: -1px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 0; height: 0;
+      border: 10px solid transparent;
+      border-left-color: var(--accent);
+      z-index: 2;
+    }
+    .pipe-step__num {
+      width: 36px; height: 36px;
+      margin: 0 auto 12px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #60A5FA, #2563EB);
+      color: #fff;
+      font-family: Outfit, sans-serif;
+      font-size: 15px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 0 #1d4ed8, 0 8px 16px rgba(37,99,235,.35), inset 0 2px 0 rgba(255,255,255,.3);
+    }
+    .pipe-step__title { font-family: Outfit, sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+    .pipe-step__sub { font-size: 13px; color: var(--muted); line-height: 1.4; }
+    .pipe-step__tag { font-size: 12px; font-weight: 700; color: var(--accent); margin-top: 10px; }
+
+    /* Task list */
+    .task-list { display: flex; flex-direction: column; gap: 10px; }
+    .task-item {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 16px;
+      align-items: center;
+      padding: 16px 18px;
+      border-radius: var(--radius-sm);
+      background: var(--surface-muted);
+      border: 1px solid var(--line);
+    }
+    .task-item__badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--cyan-soft);
+      color: var(--cyan);
+      white-space: nowrap;
+    }
+    .task-item__text { font-size: 16px; font-weight: 500; color: var(--ink-soft); }
+
+    /* Architecture ladder */
+    .ladder { display: flex; flex-direction: column; gap: 0; flex: 1; justify-content: stretch; }
+    .ladder-step {
+      display: grid;
+      grid-template-columns: 32px 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 18px;
+      flex: 1;
+      border-left: 3px solid var(--line);
+      background: var(--surface);
+      border-bottom: 1px solid var(--line);
+    }
+    .ladder-step:first-child { border-radius: var(--radius-sm) var(--radius-sm) 0 0; border-top: 1px solid var(--line); }
+    .ladder-step:last-child { border-radius: 0 0 var(--radius-sm) var(--radius-sm); }
+    .ladder-step--hi { border-left-color: var(--accent); background: var(--accent-soft); }
+    .ladder-step--fin { border-left-color: var(--amber); background: var(--amber-soft); }
+    .ladder-step__n {
+      font-family: Outfit, sans-serif;
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--muted);
+    }
+    .ladder-step__name { font-weight: 700; font-size: 16px; }
+    .ladder-step__desc { font-size: 13px; color: var(--muted); text-align: right; }
+
+    /* Timeline horizontal */
+    .timeline-h {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .tl-card {
+      padding: 22px 24px;
+      border-radius: var(--radius-sm);
+      background: var(--dark-surface);
+      border: 1px solid var(--dark-line);
+      position: relative;
+    }
+    .tl-card::after {
+      content: '';
+      position: absolute;
+      right: -10px;
+      top: 50%;
+      width: 20px;
+      height: 2px;
+      background: #60A5FA;
+      transform: translateY(-50%);
+    }
+    .tl-card:last-child::after { display: none; }
+    .tl-card__year {
+      font-family: Outfit, sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      color: #60A5FA;
+      margin-bottom: 8px;
+    }
+    .tl-card__title { font-weight: 700; font-size: 16px; margin-bottom: 8px; color: #F8FAFC; }
+    .tl-card__text { font-size: 13px; color: rgba(248,250,252,.6); line-height: 1.5; }
+    .tl-card__source { font-size: 10px; font-style: italic; color: rgba(248,250,252,.4); margin-top: 8px; }
+
+    /* Scenario chart — HTML, no overlap */
+    .scenario-chart {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .scenario-col {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 16px;
+      border-radius: var(--radius-sm);
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--dark-line);
+    }
+    .scenario-col__title {
+      font-family: Outfit, sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      text-align: center;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--dark-line);
+      color: #E2E8F0;
+    }
+    .scenario-metric {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .scenario-metric__head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+    }
+    .scenario-metric__lbl { font-size: 11px; font-weight: 600; color: rgba(248,250,252,.5); text-transform: uppercase; letter-spacing: .06em; }
+    .scenario-metric__val { font-family: Outfit, sans-serif; font-size: 17px; font-weight: 800; color: #60A5FA; white-space: nowrap; }
+    .scenario-metric__bar {
+      height: 18px;
+      border-radius: 6px;
+      background: linear-gradient(180deg, rgba(255,255,255,.12) 0%, rgba(255,255,255,.04) 100%);
+      overflow: visible;
+      box-shadow: inset 0 3px 6px rgba(0,0,0,.25), 0 3px 0 rgba(0,0,0,.15);
+      perspective: 400px;
+    }
+    .scenario-metric__bar span {
+      display: block;
+      height: 100%;
+      border-radius: 5px;
+      background: linear-gradient(180deg, #60A5FA 0%, #2563EB 60%, #1d4ed8 100%);
+      box-shadow: 0 4px 0 #1e40af, 0 8px 16px rgba(37,99,235,.35), inset 0 1px 0 rgba(255,255,255,.3);
+      transform: rotateX(8deg);
+      transform-origin: bottom;
+    }
+    .scenario-metric--cost .scenario-metric__val { color: #FBBF24; }
+    .scenario-metric--cost .scenario-metric__bar span {
+      background: linear-gradient(180deg, #FDE68A 0%, #D97706 60%, #b45309 100%);
+      box-shadow: 0 4px 0 #92400e, 0 8px 16px rgba(217,119,6,.3), inset 0 1px 0 rgba(255,255,255,.35);
+    }
+
+    /* Roadmap */
+    .roadmap {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0;
+      position: relative;
+      flex: 1;
+      align-items: stretch;
+    }
+    .roadmap::before {
+      content: '';
+      position: absolute;
+      top: 28px;
+      left: 10%;
+      right: 10%;
+      height: 3px;
+      background: linear-gradient(90deg, #2563EB, #60A5FA, #22D3EE);
+      border-radius: 999px;
+      z-index: 0;
+    }
+    .roadmap-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 0 10px;
+      position: relative;
+      z-index: 1;
+    }
+    .roadmap-step__dot {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #1e293b, var(--dark-surface));
+      border: 3px solid #60A5FA;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: Outfit, sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      color: #60A5FA;
+      margin-bottom: 18px;
+      box-shadow: 0 6px 0 rgba(0,0,0,.25), 0 0 0 6px var(--dark), 0 12px 24px rgba(37,99,235,.2);
+    }
+    .roadmap-step--final .roadmap-step__dot {
+      background: linear-gradient(145deg, #60A5FA, #2563EB);
+      border-color: #2563EB;
+      color: #fff;
+      box-shadow: 0 8px 0 #1e40af, 0 0 32px rgba(37,99,235,.5), 0 0 0 6px var(--dark);
+    }
+    .roadmap-step__title {
+      font-family: Outfit, sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: #F8FAFC;
+    }
+    .roadmap-step__meta {
+      font-size: 12px;
+      line-height: 1.65;
+      color: rgba(248,250,252,.55);
+      text-align: left;
+      width: 100%;
+      padding: 16px;
+      border-radius: var(--radius-sm);
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--dark-line);
+      box-shadow: 0 8px 20px rgba(0,0,0,.2);
+    }
+    .roadmap-step__meta strong { color: rgba(248,250,252,.85); font-weight: 600; }
+
+    /* Slide-specific layouts */
+    .hero-split {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 48px;
+      align-items: center;
+      flex: 1;
+    }
+
+    .hero-visual {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+    .hero-node {
+      padding: 26px;
+      border-radius: var(--radius);
+      background: linear-gradient(145deg, #1e293b, var(--dark-surface));
+      border: 1px solid var(--dark-line);
+      text-align: center;
+      box-shadow: 0 10px 0 rgba(0,0,0,.2), 0 20px 32px rgba(0,0,0,.25);
+      transform: perspective(700px) rotateX(4deg);
+    }
+    .hero-node--hub {
+      grid-column: 1 / -1;
+      background: linear-gradient(145deg, rgba(37,99,235,.35), rgba(8,145,178,.2));
+      border-color: rgba(96,165,250,.4);
+      padding: 32px;
+      box-shadow: 0 12px 0 #1e40af, 0 28px 48px rgba(37,99,235,.3), inset 0 2px 0 rgba(255,255,255,.1);
+      transform: perspective(700px) rotateX(2deg) scale(1.02);
+    }
+    .hero-node__icon {
+      width: 40px; height: 40px;
+      margin: 0 auto 10px;
+      border-radius: 12px;
+      background: rgba(37,99,235,.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+    .hero-node__title { font-family: Outfit, sans-serif; font-weight: 700; font-size: 14px; }
+    .hero-node__sub { font-size: 11px; color: rgba(248,250,252,.5); margin-top: 4px; }
+
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 64px 1fr;
+      gap: 0;
+      align-items: stretch;
+      flex: 1;
+      min-height: 0;
+    }
+    .compare-panel {
+      display: flex;
+      flex-direction: column;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-3d-lg);
+      transform: perspective(900px) rotateY(-2deg);
+    }
+    .compare-panel--bad { border-color: #FECACA; transform: perspective(900px) rotateY(-2deg); }
+    .compare-panel--good { border-color: #BFDBFE; transform: perspective(900px) rotateY(2deg); }
+    .compare-panel__head {
+      padding: 18px 24px;
+      font-family: Outfit, sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-align: center;
+    }
+    .compare-panel--bad .compare-panel__head { background: var(--danger-soft); color: var(--danger); }
+    .compare-panel--good .compare-panel__head { background: var(--accent-soft); color: var(--accent); }
+    .compare-panel__body { padding: 24px; flex: 1; display: flex; flex-direction: column; gap: 14px; background: var(--surface); }
+    .compare-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      color: var(--accent);
+      font-weight: 800;
+    }
+    .site-card {
+      padding: 20px 18px;
+      border-radius: var(--radius-sm);
+      border: 2px dashed #FECACA;
+      background: linear-gradient(180deg, #fff, #FFFBFB);
+      box-shadow: 0 6px 0 #fecaca, 0 12px 20px rgba(220,38,38,.08);
+      transform: perspective(500px) rotateX(3deg);
+    }
+    .site-card__name { font-family: Outfit, sans-serif; font-weight: 700; font-size: 17px; color: var(--danger); margin-bottom: 10px; }
+    .site-card__tags { display: flex; gap: 6px; flex-wrap: wrap; }
+    .site-card__tag {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--danger-soft);
+      color: #B91C1C;
+    }
+    .sites-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .unified-hub {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 36px;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(160deg, var(--accent-soft), #fff);
+      border: 2px solid #BFDBFE;
+      box-shadow: 0 12px 0 #bfdbfe, 0 24px 40px rgba(37,99,235,.15);
+      transform: perspective(700px) rotateX(2deg);
+    }
+    .unified-hub__title { font-family: Outfit, sans-serif; font-size: 28px; font-weight: 800; color: var(--accent); margin-bottom: 20px; }
+    .unified-hub__ring {
+      width: 180px; height: 180px;
+      border-radius: 50%;
+      border: 3px solid var(--accent);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      margin-bottom: 16px;
+      background: #fff;
+    }
+    .unified-hub__ring span { font-weight: 700; font-size: 15px; color: var(--ink-soft); }
+    .unified-hub__tech { font-size: 12px; font-weight: 700; color: var(--cyan); letter-spacing: .04em; }
+    .compare-foot { text-align: center; font-size: 13px; font-weight: 600; color: var(--muted); margin-top: 16px; }
+
+    /* Solution flow */
+    .solution-flow { display: flex; flex-direction: column; gap: 24px; flex: 1; justify-content: center; }
+    .flow-core {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      flex-wrap: nowrap;
+    }
+    .flow-node {
+      flex: 0 0 auto;
+      min-width: 180px;
+      padding: 26px 28px;
+      text-align: center;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(145deg, #1e293b, var(--dark-surface));
+      border: 1px solid var(--dark-line);
+      box-shadow: 0 10px 0 rgba(0,0,0,.2), 0 20px 36px rgba(0,0,0,.25);
+      transform: perspective(700px) rotateX(5deg) rotateY(-2deg);
+    }
+    .flow-node--docs { border-color: rgba(251,191,36,.4); box-shadow: 0 10px 0 rgba(0,0,0,.2), 0 0 24px rgba(251,191,36,.1); }
+    .flow-node--rag { border-color: rgba(34,211,238,.4); }
+    .flow-node--llm {
+      background: linear-gradient(145deg, #3b82f6, #2563EB, #1d4ed8);
+      border-color: #60A5FA;
+      transform: perspective(700px) rotateX(2deg) scale(1.06);
+      box-shadow: 0 12px 0 #1e40af, 0 28px 48px rgba(37,99,235,.4), inset 0 2px 0 rgba(255,255,255,.25);
+    }
+    .flow-node__title { font-family: Outfit, sans-serif; font-size: 20px; font-weight: 800; margin-bottom: 6px; }
+    .flow-node__sub { font-size: 12px; color: rgba(248,250,252,.6); line-height: 1.45; }
+    .flow-arrow {
+      flex: 0 0 48px;
+      text-align: center;
+      color: #60A5FA;
+      font-size: 24px;
+      font-weight: 700;
+    }
+    .domains-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+    }
+    .domain-card {
+      padding: 20px 14px;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(145deg, rgba(255,255,255,.07), rgba(255,255,255,.02));
+      border: 1px solid var(--dark-line);
+      text-align: center;
+      box-shadow: 0 8px 0 rgba(0,0,0,.15), 0 16px 28px rgba(0,0,0,.2);
+      transform: perspective(600px) rotateX(3deg);
+    }
+    .domain-card__title { font-family: Outfit, sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 8px; color: #E2E8F0; }
+    .domain-card__sub { font-size: 11px; color: rgba(248,250,252,.55); line-height: 1.45; }
+    .flow-agents {
+      text-align: center;
+      font-size: 13px;
+      color: rgba(248,250,252,.55);
+      padding: 14px;
+      border-radius: var(--radius-sm);
+      border: 1px dashed var(--dark-line);
+    }
+
+    .slide-4-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      grid-template-rows: 1fr auto;
+      gap: 16px;
+      flex: 1;
+      min-height: 0;
+    }
+    .slide-4-grid__auto { grid-column: 1 / -1; }
+
+    .slide-5-grid {
+      display: grid;
+      grid-template-columns: .95fr 1.05fr;
+      gap: 20px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* Network diagram — simplified HTML */
+    .network {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16/10;
+      min-height: 340px;
+    }
+    .network__hub {
+      position: absolute;
+      left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
+      width: 120px; height: 120px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #60A5FA 0%, #2563EB 50%, #1d4ed8 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-family: Outfit, sans-serif;
+      font-weight: 800;
+      font-size: 22px;
+      box-shadow: 0 8px 0 #1e40af, 0 20px 40px rgba(37,99,235,.45), inset 0 3px 0 rgba(255,255,255,.35);
+      z-index: 4;
+    }
+    .network__hub::before,
+    .network__hub::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      border: 2px dashed rgba(96,165,250,.35);
       pointer-events: none;
     }
-    .pie-3d {
-      width: 180px; height: 180px; border-radius: 50%;
-      background: conic-gradient(var(--cyan) 0deg 130deg, rgba(255,255,255,0.12) 130deg 360deg);
-      box-shadow: 0 0 40px var(--cyan-glow), inset 0 0 30px rgba(0,0,0,0.3);
-      position: relative; margin: 0 auto;
+    .network__hub::before { width: 180px; height: 180px; animation: pulse-ring 3s ease-in-out infinite; }
+    .network__hub::after { width: 240px; height: 240px; border-style: solid; border-color: rgba(96,165,250,.15); animation: pulse-ring 3s ease-in-out infinite .6s; }
+    @keyframes pulse-ring {
+      0%, 100% { opacity: .5; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.03); }
     }
-    .pie-3d::after {
-      content: ''; position: absolute; inset: 28px; border-radius: 50%;
-      background: var(--navy-mid); border: 2px solid rgba(0,212,255,0.3);
+    .network__hub small { font-size: 11px; font-weight: 500; opacity: .85; }
+    .network__node {
+      position: absolute;
+      width: 168px;
+      padding: 18px 14px;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(145deg, #1e293b, var(--dark-surface));
+      border: 1px solid var(--dark-line);
+      text-align: center;
+      box-shadow: 0 10px 0 rgba(0,0,0,.2), 0 20px 32px rgba(0,0,0,.3);
+      transform: perspective(600px) rotateX(4deg);
+      z-index: 3;
     }
-    @media (max-width: 960px) {
-      .slide { padding: 32px 24px 60px; }
-      .g2, .g3, .g4, .split, .arch-grid { grid-template-columns: 1fr; }
-      .split { margin: 24px 0 0; }
+    .network__node--tl { left: 4%; top: 6%; }
+    .network__node--tr { right: 4%; top: 6%; }
+    .network__node--bl { left: 2%; bottom: 6%; }
+    .network__node--br { right: 2%; bottom: 6%; }
+    .network__name { font-family: Outfit, sans-serif; font-weight: 700; font-size: 16px; margin-bottom: 12px; }
+    .network__badges { display: flex; gap: 4px; justify-content: center; }
+    .network__badge {
+      font-size: 9px;
+      font-weight: 700;
+      padding: 4px 6px;
+      border-radius: 4px;
+      background: rgba(37,99,235,.2);
+      color: #93C5FD;
+      border: 1px solid rgba(96,165,250,.2);
+    }
+    .network svg.lines {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .slide-6-grid {
+      display: grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 24px;
+      flex: 1;
+      min-height: 0;
+      align-items: stretch;
+    }
+
+    .slide-6-right { display: flex; flex-direction: column; gap: 18px; min-height: 0; }
+    .slide-6-right .card--perimeter { flex: 1.4; display: flex; flex-direction: column; }
+    .slide-6-right .card--tech { flex: 1; }
+
+    /* Perimeter orbit — GO + 4 objects */
+    .perimeter-orbit {
+      position: relative;
+      min-height: 360px;
+      margin: 8px 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .perimeter-orbit__svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .perimeter-orbit__ring {
+      position: absolute;
+      left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      border: 2px dashed rgba(8,145,178,.45);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .perimeter-orbit__ring--1 { width: 140px; height: 140px; animation: orbit-pulse 3.5s ease-in-out infinite; }
+    .perimeter-orbit__ring--2 { width: 200px; height: 200px; border-color: rgba(8,145,178,.3); animation: orbit-pulse 3.5s ease-in-out infinite .4s; }
+    .perimeter-orbit__ring--3 { width: 280px; height: 280px; border-style: solid; border-color: rgba(8,145,178,.18); animation: orbit-pulse 3.5s ease-in-out infinite .8s; }
+    @keyframes orbit-pulse {
+      0%, 100% { opacity: .45; transform: translate(-50%, -50%) scale(1); }
+      50% { opacity: 1; transform: translate(-50%, -50%) scale(1.02); }
+    }
+    .perimeter-orbit__hub {
+      position: relative;
+      z-index: 3;
+      width: 96px; height: 96px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #67E8F9, #0891B2, #0e7490);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: Outfit, sans-serif;
+      font-weight: 800;
+      font-size: 22px;
+      color: #fff;
+      box-shadow: 0 6px 0 #0e7490, 0 16px 32px rgba(8,145,178,.4), inset 0 2px 0 rgba(255,255,255,.4);
+      text-shadow: 0 1px 2px rgba(0,0,0,.2);
+    }
+    .perimeter-orbit__hub small {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: .06em;
+      opacity: .9;
+      margin-top: 2px;
+    }
+    .perimeter-orbit__site {
+      position: absolute;
+      z-index: 2;
+      min-width: 108px;
+      padding: 14px 16px;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(180deg, #fff, var(--surface-muted));
+      border: 1px solid var(--line);
+      text-align: center;
+      font-family: Outfit, sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--ink-soft);
+      box-shadow: 0 6px 0 #e2e8f0, 0 14px 24px rgba(15,23,42,.1);
+      transform: perspective(500px) rotateX(3deg);
+    }
+    .perimeter-orbit__site span {
+      display: block;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-top: 4px;
+      font-family: 'IBM Plex Sans', sans-serif;
+    }
+    .perimeter-orbit__site--1 { top: 8%; left: 50%; transform: translateX(-50%) perspective(500px) rotateX(3deg); }
+    .perimeter-orbit__site--2 { right: 4%; top: 42%; }
+    .perimeter-orbit__site--3 { bottom: 8%; left: 50%; transform: translateX(-50%) perspective(500px) rotateX(3deg); }
+    .perimeter-orbit__site--4 { left: 4%; top: 42%; }
+    .perimeter-wrap {
+      padding: 24px 28px 28px;
+      border-radius: var(--radius);
+      border: 2px dashed #67E8F9;
+      background: linear-gradient(160deg, rgba(8,145,178,.06), rgba(37,99,235,.03));
+      position: relative;
+      box-shadow: inset 0 0 40px rgba(8,145,178,.06), var(--shadow-sm);
+    }
+    .perimeter-wrap__label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .internet-block {
+      position: absolute;
+      right: 16px;
+      bottom: 16px;
+      padding: 12px 16px;
+      border-radius: var(--radius-xs);
+      background: var(--danger-soft);
+      border: 2px dashed var(--danger);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--danger);
+      text-align: center;
+      box-shadow: 0 4px 0 #fecaca, 0 8px 16px rgba(220,38,38,.15);
+      z-index: 4;
+    }
+    .risk-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 14px;
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      background: var(--success-soft);
+      border: 1px solid #6EE7B7;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--success);
+    }
+    .tech-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .tech-tag {
+      font-size: 13px;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid #BFDBFE;
+    }
+
+    .slide-7-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto 1fr;
+      gap: 16px;
+      flex: 1;
+      min-height: 0;
+    }
+    .slide-7-grid__timeline { grid-column: 1 / -1; }
+    .map-frame {
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      border: 1px solid var(--dark-line);
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    .map-frame img { width: 100%; flex: 1; object-fit: cover; min-height: 120px; }
+    .map-frame__cap {
+      padding: 10px 14px;
+      font-size: 11px;
+      color: rgba(248,250,252,.55);
+      border-top: 1px solid var(--dark-line);
+      background: var(--dark-surface);
+    }
+
+    .note {
+      font-size: 12px;
+      color: var(--muted);
+      padding: 12px 16px;
+      border-radius: var(--radius-xs);
+      background: var(--surface-muted);
+      border: 1px solid var(--line);
+      line-height: 1.5;
+    }
+    .slide--dark .note {
+      background: rgba(255,255,255,.04);
+      border-color: var(--dark-line);
+      color: rgba(248,250,252,.5);
+    }
+
+    .slide-8-grid {
+      display: grid;
+      grid-template-columns: 1.5fr .85fr;
+      gap: 24px;
+      flex: 1;
+      min-height: 0;
+      align-items: start;
+    }
+
+    @media print {
+      .deck { height: auto; overflow: visible; scroll-snap-type: none; }
+      .slide {
+        page-break-after: always;
+        page-break-inside: avoid;
+        min-height: 100vh;
+        height: 100vh;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .slide:last-child { page-break-after: auto; }
+    }
+
+    @media (max-width: 1100px) {
+      :root { --pad-x: 24px; --pad-y: 32px; }
+      .hero-split, .compare-grid, .slide-4-grid, .slide-5-grid,
+      .slide-6-grid, .slide-7-grid, .slide-8-grid, .domains-grid,
+      .pipeline, .timeline-h, .scenario-chart, .roadmap, .metric-grid {
+        grid-template-columns: 1fr;
+      }
+      .compare-grid { grid-template-columns: 1fr; }
+      .compare-arrow { transform: rotate(90deg); padding: 12px 0; }
+      .flow-core { flex-wrap: wrap; justify-content: center; }
+      .flow-arrow { flex: 0 0 100%; transform: rotate(90deg); }
+      .roadmap::before { display: none; }
+      .roadmap-step { margin-bottom: 20px; }
+      .hbar-row { grid-template-columns: 1fr; gap: 8px; }
+      .hbar-row__pct { text-align: left; }
+      .tl-card::after { display: none; }
+      .network { aspect-ratio: auto; min-height: 400px; }
     }
   </style>
 </head>
 <body>
 <div class="deck">
 
-  <!-- 1 HERO -->
-  <section class="slide slide--dark">
-    <div class="bg bg--soft" style="background-image:url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80')"></div>
-    <div class="deco-ring" style="width:600px;height:600px;top:-200px;right:-100px"></div>
-    <div class="deco-ring" style="width:400px;height:400px;bottom:-80px;left:10%"></div>
-    <div class="inner hero">
-      <div class="tag">Стратегический отчёт · 2026</div>
-      <div class="rule"></div>
-      <h1>Локальная<br>AI-сеть</h1>
-      <p class="lead">Единая корпоративная сеть искусственного интеллекта для шахтостроения. Накопленный опыт — в каждый новый объект. Без облака. Без повторения ошибок.</p>
-      <div class="stats">
-        <div><div class="stat-v">30+</div><div class="stat-l">проектов по СНГ</div></div>
-        <div><div class="stat-v">150</div><div class="stat-l">лет отраслевого опыта</div></div>
-        <div><div class="stat-v">2056 м</div><div class="stat-l">рекордная глубина проходки</div></div>
+<!-- 01 Титул -->
+<section class="slide slide--dark">
+  <div class="slide__top">
+    <span class="slide__num">01 / 09</span>
+  </div>
+  <div class="body hero-split">
+    <div class="slide__titles">
+      <div class="eyebrow">Board Presentation · 2026</div>
+      <h1>Локальная AI-сеть</h1>
+      <p class="lead">Единая интеллектуальная инфраструктура шахтостроительной компании</p>
+      <div class="chips" style="margin-top:24px">
+        <span class="chip">Закрытый контур</span>
+        <span class="chip">On-premise LLM (локальная большая языковая модель)</span>
+        <span class="chip">Enterprise AI</span>
       </div>
-      <span class="pill">Локальная безопасность · Закрытый контур</span>
     </div>
-    <div class="footer"><span>ШАХТОСТРОЕНИЕ</span><span>01 / 09</span></div>
-  </section>
-
-  <!-- 2 PROBLEM — white split -->
-  <section class="slide slide--light" style="padding:0">
-    <div class="split" style="flex:1;margin:0;min-height:100vh">
-      <div class="split__img" style="background-image:url('https://images.unsplash.com/photo-1518709268805-4e9042af9f83?w=1200&q=80')">
-        <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(5,18,34,0.7),rgba(0,120,160,0.35))"></div>
+    <div class="hero-visual">
+      <div class="hero-node hero-node--hub">
+        <div class="hero-node__icon">⬡</div>
+        <div class="hero-node__title">Единая AI-сеть</div>
+        <div class="hero-node__sub">RAG · LLM · KB · Agents</div>
       </div>
-      <div class="split__body slide--light">
-        <div class="tag">Проблема</div>
-        <h2>Каждый объект — как первый раз</h2>
-        <p class="lead">Новые стройки стартуют в сумбуре. Решения принимаются заново — хотя похожие задачи уже решались десятки раз.</p>
-        <div class="g2" style="margin-top:20px">
-          <div class="card"><div class="n">01</div><h3>Потеря опыта</h3><p>Уроки прошлых объектов не систематизированы</p></div>
-          <div class="card"><div class="n">02</div><h3>Дублирование ошибок</h3><p>Одни просчёты повторяются снова и снова</p></div>
-          <div class="card"><div class="n">03</div><h3>Разрозненные данные</h3><p>Сметы, проекты и журналы в разных местах</p></div>
-          <div class="card"><div class="n">04</div><h3>Медленные решения</h3><p>Экспертиза недоступна в момент принятия решения</p></div>
+      <div class="hero-node"><div class="hero-node__title">Закрытый контур</div><div class="hero-node__sub">On-premise</div></div>
+      <div class="hero-node"><div class="hero-node__title">4 объекта + ГО</div><div class="hero-node__sub">VPN mesh</div></div>
+    </div>
+  </div>
+  <div class="footer"><span>Локальная AI-сеть</span><span>Шахтостроение</span></div>
+</section>
+
+<!-- 02 Проблема -->
+<section class="slide slide--light">
+  <div class="slide__top slide__top--center">
+    <div class="slide__titles">
+      <div class="eyebrow eyebrow--danger">Проблема</div>
+      <h2>Потеря опыта между объектами</h2>
+    </div>
+    <span class="slide__num">02 / 09</span>
+  </div>
+  <div class="body">
+    <div class="compare-grid">
+      <div class="compare-panel compare-panel--bad">
+        <div class="compare-panel__head">СЕГОДНЯ</div>
+        <div class="compare-panel__body">
+          <div class="sites-grid">
+            <div class="site-card">
+              <div class="site-card__name">Соликамск</div>
+              <div class="site-card__tags">
+                <span class="site-card__tag">Люди</span>
+                <span class="site-card__tag">Документы</span>
+                <span class="site-card__tag">Решения</span>
+              </div>
+            </div>
+            <div class="site-card">
+              <div class="site-card__name">Норильск</div>
+              <div class="site-card__tags">
+                <span class="site-card__tag">Люди</span>
+                <span class="site-card__tag">Документы</span>
+                <span class="site-card__tag">Решения</span>
+              </div>
+            </div>
+            <div class="site-card">
+              <div class="site-card__name">Сатимола</div>
+              <div class="site-card__tags">
+                <span class="site-card__tag">Люди</span>
+                <span class="site-card__tag">Документы</span>
+                <span class="site-card__tag">Решения</span>
+              </div>
+            </div>
+            <div class="site-card">
+              <div class="site-card__name">Котельниково</div>
+              <div class="site-card__tags">
+                <span class="site-card__tag">Люди</span>
+                <span class="site-card__tag">Документы</span>
+                <span class="site-card__tag">Решения</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="compare-arrow">→</div>
+      <div class="compare-panel compare-panel--good">
+        <div class="compare-panel__head">ЗАВТРА</div>
+        <div class="compare-panel__body">
+          <div class="unified-hub">
+            <div class="unified-hub__title">Единая AI-сеть</div>
+            <div class="unified-hub__ring">
+              <span>Люди</span>
+              <span>Документы</span>
+              <span>Решения</span>
+            </div>
+            <div class="unified-hub__tech">RAG · LLM · KB · Agents</div>
+          </div>
         </div>
       </div>
     </div>
-    <div class="footer" style="background:rgba(238,243,249,0.9)"><span>ПРОБЛЕМА</span><span>02 / 09</span></div>
-  </section>
+    <p class="compare-foot">4 изолированных контура · опыт не переносится → Знания структурируются и возвращаются в решения</p>
+  </div>
+  <div class="footer"><span>Проблема</span><span>Сегодня → Завтра</span></div>
+</section>
 
-  <!-- 3 SOLUTION -->
-  <section class="slide slide--dark">
-    <div class="bg" style="background-image:url('https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=1920&q=80')"></div>
-    <div class="inner">
-      <div class="tag">Решение</div>
-      <h2>Единая локальная AI-сеть</h2>
-      <p class="lead">На каждом объекте — свой узел. Обмен опытом и обучение AI только между корпоративными серверами, без подключения к облачным сервисам.</p>
-      <div class="g2" style="max-width:920px">
-        <div class="card"><h3>База знаний всех объектов</h3><p>Проходка, замораживание, гидроизоляция, нормативы</p></div>
-        <div class="card"><h3>AI-ассистент инженера</h3><p>Проектирование, проверка решений, альтернативы</p></div>
-        <div class="card"><h3>Контроль расходов</h3><p>Сметы, закупки, подрядчики в реальном времени</p></div>
-        <div class="card"><h3>Закрытый контур данных</h3><p>Информация не покидает корпоративный периметр</p></div>
+<!-- 03 Решение -->
+<section class="slide slide--dark">
+  <div class="slide__top">
+    <div class="slide__titles">
+      <div class="eyebrow">Решение</div>
+      <h2>Локальная AI-сеть для всех направлений</h2>
+      <p class="lead">Документы → RAG → LLM → задачи на объектах</p>
+    </div>
+    <span class="slide__num">03 / 09</span>
+  </div>
+  <div class="body solution-flow">
+    <div class="flow-core">
+      <div class="flow-node flow-node--docs">
+        <div class="flow-node__title">Документы</div>
+        <div class="flow-node__sub">PDF · Excel · Скан · Нормативы</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node flow-node--rag">
+        <div class="flow-node__title">RAG</div>
+        <div class="flow-node__sub">поиск + генерация</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node flow-node--llm">
+        <div class="flow-node__title">LLM</div>
+        <div class="flow-node__sub">большая языковая модель</div>
       </div>
     </div>
-    <div class="footer"><span>РЕШЕНИЕ</span><span>03 / 09</span></div>
-  </section>
-
-  <!-- 4 CAPABILITIES — white with cylinders -->
-  <section class="slide slide--light">
-    <div class="inner">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:40px">
-        <div>
-          <div class="tag">Возможности</div>
-          <h2>Чем помогает AI</h2>
-          <p class="lead">Интеллектуальный ассистент на каждом этапе жизненного цикла проекта</p>
-        </div>
-        <div style="text-align:center">
-          <div class="pie-3d"></div>
-          <p style="font-size:12px;color:#5a7288;margin-top:12px">Охват процессов</p>
-        </div>
+    <div class="domains-grid">
+      <div class="domain-card">
+        <div class="domain-card__title">Проектирование</div>
+        <div class="domain-card__sub">верификация · альтернативы · разделы</div>
       </div>
-      <div class="g3">
-        <div class="card"><div class="n">1</div><h3>Проектирование</h3><p>Анализ решений, нормативы, сравнение альтернатив</p></div>
-        <div class="card"><div class="n">2</div><h3>Планирование</h3><p>Графики проходки, риски, ресурсы</p></div>
-        <div class="card"><div class="n">3</div><h3>Расходы</h3><p>Контроль смет, перерасходы, закупки</p></div>
-        <div class="card"><div class="n">4</div><h3>Персонал</h3><p>Подбор, компетенции, смены</p></div>
-        <div class="card"><div class="n">5</div><h3>Документация</h3><p>Отчёты, журналы, поиск по ТУ</p></div>
-        <div class="card"><div class="n">6</div><h3>Безопасность</h3><p>СИЗ, инциденты, промбезопасность</p></div>
+      <div class="domain-card">
+        <div class="domain-card__title">Планирование</div>
+        <div class="domain-card__sub">графики · риски · ресурсы · сроки</div>
+      </div>
+      <div class="domain-card">
+        <div class="domain-card__title">Строительство</div>
+        <div class="domain-card__sub">ППР · контроль работ · ИД</div>
+      </div>
+      <div class="domain-card">
+        <div class="domain-card__title">Финансы</div>
+        <div class="domain-card__sub">сметы · отклонения · прогноз затрат</div>
+      </div>
+      <div class="domain-card">
+        <div class="domain-card__title">Маркшейдерия</div>
+        <div class="domain-card__sub">объёмы · план/факт · схемы</div>
       </div>
     </div>
-    <div class="footer"><span>ВОЗМОЖНОСТИ</span><span>04 / 09</span></div>
-  </section>
+    <div class="flow-agents">AI Agents: извлечение данных · проверка нормативов · подготовка документов</div>
+  </div>
+  <div class="footer"><span>Решение</span><span>Архитектура знаний</span></div>
+</section>
 
-  <!-- 5 INDUSTRY — dark with 3D bars -->
-  <section class="slide slide--dark">
-    <div class="inner">
-      <div class="tag">Отрасль</div>
+<!-- 04 Возможности -->
+<section class="slide slide--light">
+  <div class="slide__top">
+    <div class="slide__titles">
+      <div class="eyebrow">Возможности</div>
+      <h2>Чем помогает AI</h2>
+    </div>
+    <span class="slide__num">04 / 09</span>
+  </div>
+  <div class="body slide-4-grid">
+    <div class="card">
+      <div class="card__label">Задачи</div>
+      <div class="task-list">
+        <div class="task-item"><span class="task-item__badge">Проектирование</span><span class="task-item__text">верификация решений</span></div>
+        <div class="task-item"><span class="task-item__badge">Финансовая аналитика</span><span class="task-item__text">сметы · отклонения</span></div>
+        <div class="task-item"><span class="task-item__badge">Маркшейдерия</span><span class="task-item__text">объемы · план/факт</span></div>
+        <div class="task-item"><span class="task-item__badge">Планирование</span><span class="task-item__text">графики · риски · сроки</span></div>
+        <div class="task-item"><span class="task-item__badge">Строительство</span><span class="task-item__text">ППР · контроль работ</span></div>
+        <div class="task-item"><span class="task-item__badge">Контроль</span><span class="task-item__text">качество + ТБ</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card__label">AI Pipeline</div>
+      <div class="pipeline">
+        <div class="pipe-step">
+          <div class="pipe-step__num">1</div>
+          <div class="pipe-step__title">Вход</div>
+          <div class="pipe-step__sub">Документы</div>
+          <div class="pipe-step__tag">КП · Сметы</div>
+        </div>
+        <div class="pipe-step">
+          <div class="pipe-step__num">2</div>
+          <div class="pipe-step__title">RAG</div>
+          <div class="pipe-step__sub">поиск+генерация</div>
+          <div class="pipe-step__tag">Нормативы</div>
+        </div>
+        <div class="pipe-step">
+          <div class="pipe-step__num">3</div>
+          <div class="pipe-step__title">План</div>
+          <div class="pipe-step__sub">Проработка</div>
+          <div class="pipe-step__tag">Графики · Риски</div>
+        </div>
+        <div class="pipe-step">
+          <div class="pipe-step__num">4</div>
+          <div class="pipe-step__title">Контроль</div>
+          <div class="pipe-step__sub">OCR · Vision</div>
+          <div class="pipe-step__tag">качество + ТБ</div>
+        </div>
+      </div>
+    </div>
+    <div class="card slide-4-grid__auto">
+      <div class="card__label" style="text-align:center">Автоматизация</div>
+      <div class="hbar-list">
+        <div class="hbar-row">
+          <span class="hbar-row__label">RAG (поиск+генерация)</span>
+          <div class="hbar-row__track"><div class="hbar-row__fill hbar-row__fill--blue" style="width:65%">65%</div></div>
+          <span class="hbar-row__pct">65%</span>
+        </div>
+        <div class="hbar-row">
+          <span class="hbar-row__label">OCR (текст) · Vision (зрение)</span>
+          <div class="hbar-row__track"><div class="hbar-row__fill hbar-row__fill--cyan" style="width:78%">78%</div></div>
+          <span class="hbar-row__pct">78%</span>
+        </div>
+        <div class="hbar-row">
+          <span class="hbar-row__label">Аналитика</span>
+          <div class="hbar-row__track"><div class="hbar-row__fill hbar-row__fill--amber" style="width:60%">60%</div></div>
+          <span class="hbar-row__pct">60%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>Возможности</span><span>Задачи · Pipeline · Автоматизация</span></div>
+</section>
+
+<!-- 05 Отрасль -->
+<section class="slide slide--dark">
+  <div class="slide__top">
+    <div class="slide__titles">
+      <div class="eyebrow">Отрасль</div>
       <h2>AI в шахтостроении</h2>
-      <p class="lead">Где уже применяется и какой эффект даёт для EPC-подрядчика</p>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:16px">
-        <div class="g3" style="grid-template-columns:1fr 1fr;margin:0">
-          <div class="card"><h3>Геомоделирование</h3><p>ML-анализ геоданных</p><div class="metric-big" style="font-size:36px;margin-top:10px">15–25%</div></div>
-          <div class="card"><h3>Проходка</h3><p>Оптимизация графиков</p><div class="metric-big" style="font-size:36px;margin-top:10px">10–18%</div></div>
-          <div class="card"><h3>Предиктивное ТО</h3><p>Прогноз отказов</p><div class="metric-big" style="font-size:36px;margin-top:10px">20–30%</div></div>
-          <div class="card"><h3>Контроль смет</h3><p>Автосверка с фактом</p><div class="metric-big" style="font-size:36px;margin-top:10px">5–12%</div></div>
+    </div>
+    <span class="slide__num">05 / 09</span>
+  </div>
+  <div class="body slide-5-grid">
+    <div class="card">
+      <div class="card__label">Сценарный эффект</div>
+      <div class="metric-grid">
+        <div class="metric-tile">
+          <div class="metric-tile__val">20–35%</div>
+          <div class="metric-tile__lbl">Сроки</div>
         </div>
-        <div>
-          <p style="font-size:12px;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:16px">Потенциал экономии по направлениям</p>
-          <div class="cyl-wrap">
-            <div class="cyl-item"><div class="cyl" style="height:160px"></div><div class="cyl-lbl">Геология</div></div>
-            <div class="cyl-item"><div class="cyl" style="height:120px"></div><div class="cyl-lbl">Проходка</div></div>
-            <div class="cyl-item"><div class="cyl" style="height:180px"></div><div class="cyl-lbl">Безопасность</div></div>
-            <div class="cyl-item"><div class="cyl" style="height:140px"></div><div class="cyl-lbl">Документы</div></div>
-            <div class="cyl-item"><div class="cyl" style="height:100px"></div><div class="cyl-lbl">Сметы</div></div>
-          </div>
-          <div class="card" style="margin-top:24px">
-            <p style="font-size:15px;color:#fff"><strong>Совокупный эффект:</strong> 8–15% снижение операционных затрат на объекте</p>
-          </div>
+        <div class="metric-tile">
+          <div class="metric-tile__val">10–25%</div>
+          <div class="metric-tile__lbl">Сметы</div>
+        </div>
+        <div class="metric-tile">
+          <div class="metric-tile__val">15–30%</div>
+          <div class="metric-tile__lbl">Качество</div>
+        </div>
+        <div class="metric-tile">
+          <div class="metric-tile__val">20–30%</div>
+          <div class="metric-tile__lbl">ТБ</div>
         </div>
       </div>
+      <div class="note" style="margin-top:16px">Числа — сценарные оценки. Фактический эффект зависит от зрелости процессов и уровня внедрения.</div>
     </div>
-    <div class="footer"><span>ОТРАСЛЬ</span><span>05 / 09</span></div>
-  </section>
-
-  <!-- 6 NETWORK SCHEME with connections -->
-  <section class="slide slide--dark">
-    <div class="bg bg--soft" style="background-image:url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1920&q=80')"></div>
-    <div class="inner">
-      <div class="tag">Структура</div>
-      <h2>Сеть объектов</h2>
-      <p class="lead" style="margin-bottom:0">Головной офис координирует стандарты. Каждый объект — автономный узел с локальным AI. Линии — каналы обмена опытом между узлами.</p>
+    <div class="card" style="display:flex;align-items:center;justify-content:center;padding:20px">
       <div class="network">
-        <svg viewBox="0 0 900 520" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="cg" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#00d4ff"/>
-              <stop offset="100%" stop-color="#0a5a8a"/>
-            </linearGradient>
-            <linearGradient id="lg" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stop-color="rgba(0,212,255,0.1)"/>
-              <stop offset="50%" stop-color="#00d4ff"/>
-              <stop offset="100%" stop-color="rgba(0,212,255,0.1)"/>
-            </linearGradient>
-          </defs>
-          <!-- pulse glow -->
-          <line class="link-pulse" x1="450" y1="260" x2="150" y2="80"/>
-          <line class="link-pulse" x1="450" y1="260" x2="750" y2="80"/>
-          <line class="link-pulse" x1="450" y1="260" x2="120" y2="400"/>
-          <line class="link-pulse" x1="450" y1="260" x2="780" y2="400"/>
-          <line class="link-pulse" x1="150" y1="80" x2="750" y2="80"/>
-          <line class="link-pulse" x1="120" y1="400" x2="780" y2="400"/>
-          <line class="link-pulse" x1="150" y1="80" x2="120" y2="400"/>
-          <line class="link-pulse" x1="750" y1="80" x2="780" y2="400"/>
-          <!-- main links hub to nodes -->
-          <line class="link" x1="450" y1="260" x2="150" y2="80"/>
-          <line class="link" x1="450" y1="260" x2="750" y2="80"/>
-          <line class="link" x1="450" y1="260" x2="120" y2="400"/>
-          <line class="link" x1="450" y1="260" x2="780" y2="400"/>
-          <!-- inter-site mesh -->
-          <line class="link" x1="150" y1="80" x2="750" y2="80" opacity="0.4"/>
-          <line class="link" x1="120" y1="400" x2="780" y2="400" opacity="0.4"/>
-          <line class="link" x1="150" y1="80" x2="120" y2="400" opacity="0.35"/>
-          <line class="link" x1="750" y1="80" x2="780" y2="400" opacity="0.35"/>
-          <!-- center -->
-          <circle class="node-center" cx="450" cy="260" r="68"/>
-          <text class="node-t" x="450" y="252">ГО</text>
-          <text class="node-s" x="450" y="272">Германия</text>
-          <!-- nodes -->
-          <rect class="node-box" x="70" y="48" width="160" height="64" rx="10"/>
-          <text class="node-t" x="150" y="76">СКРУ-2</text>
-          <text class="node-s" x="150" y="94">Соликамск</text>
-          <rect class="node-box" x="670" y="48" width="160" height="64" rx="10"/>
-          <text class="node-t" x="750" y="76">Норильск</text>
-          <text class="node-s" x="750" y="94">СКС-1 · ВС-10</text>
-          <rect class="node-box" x="40" y="368" width="160" height="64" rx="10"/>
-          <text class="node-t" x="120" y="396">Сатимола</text>
-          <text class="node-s" x="120" y="414">Произв. узел</text>
-          <rect class="node-box" x="700" y="368" width="160" height="64" rx="10"/>
-          <text class="node-t" x="780" y="396">Котельниково</text>
-          <text class="node-s" x="780" y="414">Гремячинский ГОК</text>
-          <!-- dots on lines -->
-          <circle fill="#00d4ff" cx="300" cy="170" r="4"><animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite"/></circle>
-          <circle fill="#00d4ff" cx="600" cy="170" r="4"><animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite"/></circle>
-          <circle fill="#00d4ff" cx="285" cy="330" r="4"><animate attributeName="opacity" values="1;0.3;1" dur="2.5s" repeatCount="indefinite"/></circle>
-          <circle fill="#00d4ff" cx="615" cy="330" r="4"><animate attributeName="opacity" values="0.3;1;0.3" dur="2.5s" repeatCount="indefinite"/></circle>
+        <svg class="lines" viewBox="0 0 600 380" preserveAspectRatio="none">
+          <line x1="300" y1="190" x2="100" y2="60" stroke="rgba(96,165,250,.25)" stroke-width="1.5"/>
+          <line x1="300" y1="190" x2="500" y2="60" stroke="rgba(96,165,250,.25)" stroke-width="1.5"/>
+          <line x1="300" y1="190" x2="80" y2="320" stroke="rgba(96,165,250,.25)" stroke-width="1.5"/>
+          <line x1="300" y1="190" x2="520" y2="320" stroke="rgba(96,165,250,.25)" stroke-width="1.5"/>
         </svg>
+        <div class="network__hub">ГО<small>Германия</small></div>
+        <div class="network__node network__node--tl">
+          <div class="network__name">Соликамск</div>
+          <div class="network__badges"><span class="network__badge">Server</span><span class="network__badge">LLM</span><span class="network__badge">KB</span></div>
+        </div>
+        <div class="network__node network__node--tr">
+          <div class="network__name">Норильск</div>
+          <div class="network__badges"><span class="network__badge">Server</span><span class="network__badge">LLM</span><span class="network__badge">KB</span></div>
+        </div>
+        <div class="network__node network__node--bl">
+          <div class="network__name">Сатимола</div>
+          <div class="network__badges"><span class="network__badge">Server</span><span class="network__badge">LLM</span><span class="network__badge">KB</span></div>
+        </div>
+        <div class="network__node network__node--br">
+          <div class="network__name">Котельниково</div>
+          <div class="network__badges"><span class="network__badge">Server</span><span class="network__badge">LLM</span><span class="network__badge">KB</span></div>
+        </div>
       </div>
     </div>
-    <div class="footer"><span>СТРУКТУРА СЕТИ</span><span>06 / 09</span></div>
-  </section>
+  </div>
+  <div class="footer"><span>Шахтостроение</span><span>Сценарный эффект · Сеть</span></div>
+</section>
 
-  <!-- 7 ARCHITECTURE -->
-  <section class="slide slide--light">
-    <div class="inner">
-      <div class="tag">Архитектура</div>
+<!-- 06 Архитектура -->
+<section class="slide slide--light">
+  <div class="slide__top">
+    <div class="slide__titles">
+      <div class="eyebrow">Архитектура</div>
       <h2>Как работает сеть</h2>
-      <div class="arch-grid">
-        <div>
-          <div class="site-row"><div><strong>СКРУ-2</strong><br><span>Локальный AI-узел · база знаний объекта</span></div></div>
-          <div class="site-row"><div><strong>Норильск</strong><br><span>Локальный AI-узел · глубинные проекты</span></div></div>
-          <div class="site-row"><div><strong>Сатимола</strong><br><span>Локальный AI-узел · синхронизация с сетью</span></div></div>
-          <div class="site-row"><div><strong>Котельниково</strong><br><span>Локальный AI-узел · Гремячинский ГОК</span></div></div>
+    </div>
+    <span class="slide__num">06 / 09</span>
+  </div>
+  <div class="body slide-6-grid">
+    <div class="ladder">
+      <div class="ladder-step"><span class="ladder-step__n">1</span><span class="ladder-step__name">Пользователи</span><span class="ladder-step__desc">Инженеры, РП, прорабы</span></div>
+      <div class="ladder-step ladder-step--hi"><span class="ladder-step__n">2</span><span class="ladder-step__name">AI Assistant</span><span class="ladder-step__desc">Чат-интерфейс, голос</span></div>
+      <div class="ladder-step"><span class="ladder-step__n">3</span><span class="ladder-step__name">AI Agents (агенты ИИ)</span><span class="ladder-step__desc">Автоматизация задач</span></div>
+      <div class="ladder-step ladder-step--hi"><span class="ladder-step__n">4</span><span class="ladder-step__name">LLM (большая языковая модель)</span><span class="ladder-step__desc">Локальный инференс</span></div>
+      <div class="ladder-step"><span class="ladder-step__n">5</span><span class="ladder-step__name">Vector Database (векторная база знаний)</span><span class="ladder-step__desc">Семантический индекс</span></div>
+      <div class="ladder-step"><span class="ladder-step__n">6</span><span class="ladder-step__name">Документы</span><span class="ladder-step__desc">Сметы, ППР, нормативы</span></div>
+      <div class="ladder-step"><span class="ladder-step__n">7</span><span class="ladder-step__name">Локальный сервер</span><span class="ladder-step__desc">On-premise GPU-узел</span></div>
+      <div class="ladder-step"><span class="ladder-step__n">8</span><span class="ladder-step__name">Синхронизация</span><span class="ladder-step__desc">VPN-туннели</span></div>
+      <div class="ladder-step ladder-step--fin"><span class="ladder-step__n">9</span><span class="ladder-step__name">Центральная AI-платформа</span><span class="ladder-step__desc">ГО · Германия</span></div>
+    </div>
+    <div class="slide-6-right">
+      <div class="card card--perimeter">
+        <div class="card__label">Закрытый контур — схема периметра</div>
+        <div class="perimeter-wrap">
+          <div class="perimeter-wrap__label">Корпоративный периметр</div>
+          <div class="perimeter-orbit">
+            <svg class="perimeter-orbit__svg" viewBox="0 0 400 320" preserveAspectRatio="xMidYMid meet">
+              <line x1="200" y1="160" x2="200" y2="42" stroke="#0891B2" stroke-width="2" stroke-dasharray="6 4" opacity=".6"/>
+              <line x1="200" y1="160" x2="340" y2="160" stroke="#0891B2" stroke-width="2" stroke-dasharray="6 4" opacity=".6"/>
+              <line x1="200" y1="160" x2="200" y2="278" stroke="#0891B2" stroke-width="2" stroke-dasharray="6 4" opacity=".6"/>
+              <line x1="200" y1="160" x2="60" y2="160" stroke="#0891B2" stroke-width="2" stroke-dasharray="6 4" opacity=".6"/>
+            </svg>
+            <div class="perimeter-orbit__ring perimeter-orbit__ring--1"></div>
+            <div class="perimeter-orbit__ring perimeter-orbit__ring--2"></div>
+            <div class="perimeter-orbit__ring perimeter-orbit__ring--3"></div>
+            <div class="perimeter-orbit__site perimeter-orbit__site--1">Объект 1<span>Соликамск</span></div>
+            <div class="perimeter-orbit__site perimeter-orbit__site--2">Объект 2<span>Норильск</span></div>
+            <div class="perimeter-orbit__site perimeter-orbit__site--3">Объект 3<span>Сатимола</span></div>
+            <div class="perimeter-orbit__site perimeter-orbit__site--4">Объект 4<span>Котельниково</span></div>
+            <div class="perimeter-orbit__hub">ГО<small>VPN mesh</small></div>
+          </div>
+          <div class="internet-block">Интернет<br>✗ данные</div>
         </div>
-        <div class="dark-panel">
-          <h3>ГО · Германия</h3>
-          <ul>
-            <li>✓  Обмен опытом между своими узлами</li>
-            <li>✓  Обучение AI на корпоративных данных</li>
-            <li>✓  Единые стандарты проектирования</li>
-            <li style="color:#ff7b7b">✗  Без облачных API и внешних сервисов</li>
-            <li style="color:#ff7b7b">✗  Данные не покидают периметр</li>
-          </ul>
-          <p style="font-size:12px;color:var(--muted);margin-top:20px">VPN-туннели · RAG · Fine-tuning на накопленном опыте</p>
-        </div>
+        <p style="font-size:15px;color:var(--muted);margin-top:16px;line-height:1.65">
+          ✓ Данные не покидают периметр компании<br>
+          ✓ Без облачных API и внешних LLM<br>
+          ✓ Синхронизация только по зашифрованным VPN-туннелям между узлами
+        </p>
+        <div class="risk-pill">🛡 Минимальный риск утечки в глобальную сеть — инференс и хранение полностью on-premise</div>
       </div>
-      <div class="split" style="margin:28px -64px 0;min-height:220px">
-        <div class="split__img" style="background-image:url('https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1200&q=80');min-height:220px"></div>
-        <div class="split__img" style="background-image:url('https://images.unsplash.com/photo-1565793298595-6cfb772c748a?w=1200&q=80');min-height:220px"></div>
+      <div class="card card--tech">
+        <div class="card__label">Технологии</div>
+        <div class="tech-tags">
+          <span class="tech-tag">RAG</span>
+          <span class="tech-tag">Fine-tuning</span>
+          <span class="tech-tag">OCR</span>
+          <span class="tech-tag">Vision</span>
+          <span class="tech-tag">Prometheus</span>
+          <span class="tech-tag">Grafana</span>
+          <span class="tech-tag">VPN</span>
+          <span class="tech-tag">TLS 1.3</span>
+        </div>
+        <p style="font-size:15px;color:var(--muted);margin-top:16px;line-height:1.55">Модели и базы знаний развёрнуты локально — запросы не уходят в публичные облака.</p>
       </div>
     </div>
-    <div class="footer"><span>АРХИТЕКТУРА</span><span>07 / 09</span></div>
-  </section>
+  </div>
+  <div class="footer"><span>Архитектура</span><span>Стек · Периметр · Технологии</span></div>
+</section>
 
-  <!-- 8 ROI (no equipment cost) -->
-  <section class="slide slide--dark">
-    <div class="bg" style="background-image:url('https://images.unsplash.com/photo-1565793298595-6cfb772c748a?w=1920&q=80')"></div>
-    <div class="inner">
-      <div class="tag">Экономика</div>
-      <h2>Эффект для бизнеса</h2>
-      <p class="lead">Ориентиры экономии без привязки к конкретному объекту</p>
-      <div class="g4" style="margin-top:36px">
-        <div class="card" style="text-align:center;padding:32px">
-          <div class="metric-big">8–15%</div>
-          <p style="color:var(--silver);margin-top:10px;font-size:14px">снижение операционных затрат</p>
+<!-- 07 Стратегия -->
+<section class="slide slide--dark">
+  <div class="slide__top">
+    <div class="slide__titles">
+      <div class="eyebrow">Стратегия</div>
+      <h2>Почему действовать необходимо уже сейчас</h2>
+    </div>
+    <span class="slide__num">07 / 09</span>
+  </div>
+  <div class="body slide-7-grid">
+    <div class="slide-7-grid__timeline">
+      <div class="card__label" style="margin-bottom:12px">Мировая хронология</div>
+      <div class="timeline-h">
+        <div class="tl-card">
+          <div class="tl-card__year">2020</div>
+          <div class="tl-card__title">Начало эры egocentric data</div>
+          <div class="tl-card__text">Датасеты first-person видео (EPIC-KITCHENS) для обучения embodied AI.</div>
         </div>
-        <div class="card" style="text-align:center;padding:32px">
-          <div class="metric-big">40–60%</div>
-          <p style="color:var(--silver);margin-top:10px;font-size:14px">экономия времени на документах</p>
+        <div class="tl-card">
+          <div class="tl-card__year">2024–25</div>
+          <div class="tl-card__title">Массовый сбор видеоданных</div>
+          <div class="tl-card__text">Оплата за запись бытовых задач для обучения humanoid-роботов.</div>
+          <div class="tl-card__source">The Hindu, 12.06.2026 · Objectways, Micro1</div>
         </div>
-        <div class="card" style="text-align:center;padding:32px">
-          <div class="metric-big">20–30%</div>
-          <p style="color:var(--silver);margin-top:10px;font-size:14px">снижение затрат на ремонты</p>
+        <div class="tl-card">
+          <div class="tl-card__year">2026</div>
+          <div class="tl-card__title">UBTECH U1 — коммерческий humanoid</div>
+          <div class="tl-card__text">11 000+ предзаказов. Поставки с 16 сентября 2026.</div>
+          <div class="tl-card__source">TechNode, 01.07.2026 · PRNewswire</div>
         </div>
-        <div class="card" style="text-align:center;padding:32px">
-          <div class="metric-big">30–40%</div>
-          <p style="color:var(--silver);margin-top:10px;font-size:14px">снижение инцидентов на объекте</p>
-        </div>
-      </div>
-      <div class="card" style="margin-top:28px;padding:28px">
-        <p style="font-size:17px;line-height:1.5">AI-сеть превращает разрозненный опыт десятков объектов в единый корпоративный актив — каждое новое решение опирается на все предыдущие.</p>
       </div>
     </div>
-    <div class="footer"><span>ЭКОНОМИКА</span><span>08 / 09</span></div>
-  </section>
+    <div class="map-frame">
+      <img src="assets/world-map.png" alt="Карта приоритетных рынков" />
+      <div class="map-frame__cap">Рынки роста: Азия · Африка · Южная Америка</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px;min-height:0">
+      <div class="card">
+        <div class="card__label">Сценарные эффекты</div>
+        <div class="scenario-chart">
+          <div class="scenario-col">
+            <div class="scenario-col__title">Консервативный</div>
+            <div class="scenario-metric scenario-metric--cost">
+              <div class="scenario-metric__head"><span class="scenario-metric__lbl">Стоимость</span><span class="scenario-metric__val">−10–15%</span></div>
+              <div class="scenario-metric__bar"><span style="width:38%"></span></div>
+            </div>
+            <div class="scenario-metric">
+              <div class="scenario-metric__head"><span class="scenario-metric__lbl">Сроки</span><span class="scenario-metric__val">−10–20%</span></div>
+              <div class="scenario-metric__bar"><span style="width:45%"></span></div>
+            </div>
+          </div>
+          <div class="scenario-col">
+            <div class="scenario-col__title">Базовый</div>
+            <div class="scenario-metric scenario-metric--cost">
+              <div class="scenario-metric__head"><span class="scenario-metric__lbl">Стоимость</span><span class="scenario-metric__val">−15–25%</span></div>
+              <div class="scenario-metric__bar"><span style="width:55%"></span></div>
+            </div>
+            <div class="scenario-metric">
+              <div class="scenario-metric__head"><span class="scenario-metric__lbl">Сроки</span><span class="scenario-metric__val">−20–35%</span></div>
+              <div class="scenario-metric__bar"><span style="width:72%"></span></div>
+            </div>
+          </div>
+          <div class="scenario-col">
+            <div class="scenario-col__title">Оптимистичный</div>
+            <div class="scenario-metric scenario-metric--cost">
+              <div class="scenario-metric__head"><span class="scenario-metric__lbl">Стоимость</span><span class="scenario-metric__val">−40–70%</span></div>
+              <div class="scenario-metric__bar"><span style="width:88%"></span></div>
+            </div>
+            <div class="scenario-metric">
+              <div class="scenario-metric__head"><span class="scenario-metric__lbl">Сроки</span><span class="scenario-metric__val">−30–50%</span></div>
+              <div class="scenario-metric__bar"><span style="width:65%"></span></div>
+            </div>
+          </div>
+        </div>
+        <div class="note" style="margin-top:12px">Экспертные сценарные оценки. Фактический эффект зависит от зрелости процессов и масштаба внедрения.</div>
+      </div>
+      <div class="card">
+        <div class="card__label">Глобальная конкуренция</div>
+        <p style="font-size:13px;color:rgba(248,250,252,.65);line-height:1.6">
+          При текущих темпах AI и роботизации преимущества быстро превращаются в себестоимость и скорость.
+          Отстающие рискуют потерять долю на рынках Азии, Африки и Южной Америки.
+          Вывод: накапливать знания и автоматизировать решения сейчас.
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>Стратегия</span><span>Хронология · Сценарии · Конкуренция</span></div>
+</section>
 
-  <!-- 9 NEXT STEPS -->
-  <section class="slide slide--dark">
-    <div class="bg bg--soft" style="background-image:url('https://images.unsplash.com/photo-1516939883945-70e27120ee61?w=1920&q=80')"></div>
-    <div class="inner" style="justify-content:center">
-      <div class="tag">Дорожная карта</div>
+<!-- 08 Экономика -->
+<section class="slide slide--light">
+  <div class="slide__top">
+    <div class="slide__titles">
+      <div class="eyebrow">Инвестиции</div>
+      <h2>Экономика проекта</h2>
+      <p class="lead">Конфигурация AI-узла · ориентир Q2 2026</p>
+    </div>
+    <span class="slide__num">08 / 09</span>
+  </div>
+  <div class="body slide-8-grid">
+    <div>
+      <table class="spec-table">
+        <thead><tr><th>Компонент</th><th>Модель</th><th>тыс. ₽</th></tr></thead>
+        <tbody>
+          <tr><td>Видеокарты (2×)</td><td>MSI GeForce RTX 4090 VENTUS 3X E 24G OC</td><td>550</td></tr>
+          <tr><td>Процессор</td><td>AMD Ryzen Threadripper PRO 5995WX (64 ядра)</td><td>356</td></tr>
+          <tr><td>Оперативная память</td><td>256 GB DDR5 ECC REG SK Hynix 5600 MHz</td><td>697</td></tr>
+          <tr><td>SSD Системный (RAID 1)</td><td>2× SSD 2 TB NVMe M.2 Crucial T500</td><td>53</td></tr>
+          <tr><td>SSD База данных (RAID 1)</td><td>2× SSD 8 TB NVMe M.2 Samsung 9100 PRO</td><td>266</td></tr>
+          <tr><td>Корпус + БП (4U)</td><td>Supermicro CSE-847E16-R1400LPB</td><td>300</td></tr>
+          <tr><td>Сетевое оборудование</td><td>10 GbE коммутатор + NIC</td><td>130</td></tr>
+          <tr><td>ИБП (онлайн)</td><td>Штиль STR1103TLD (3 кВА / 2,7 кВт)</td><td>80</td></tr>
+          <tr class="total"><td colspan="2">Итого · 1 объект</td><td>2 432</td></tr>
+        </tbody>
+      </table>
+      <p class="note" style="margin-top:12px">Ориентир по рыночным ценам Q2 2026. Фактическая стоимость зависит от поставщика и курса.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="stat-block">
+        <div class="stat-block__label">Стоимость узла</div>
+        <div class="stat-block__val">≈2,43 млн ₽</div>
+        <div class="stat-block__sub">на один AI-узел · под ключ</div>
+      </div>
+      <div class="stat-block" style="background:linear-gradient(135deg,var(--amber-soft),#fff);border-color:#FDE68A">
+        <div class="stat-block__label">Окупаемость</div>
+        <div class="stat-block__val" style="color:var(--amber)">12–18 мес.</div>
+        <div class="stat-block__sub">Базовый сценарий · 4 объекта</div>
+      </div>
+      <div class="scale-compare">
+        <div class="scale-item">
+          <div class="scale-item__val">2,43</div>
+          <div class="scale-item__lbl">млн ₽ · 1 объект</div>
+        </div>
+        <div class="scale-item scale-item--big">
+          <div class="scale-item__val">9,73</div>
+          <div class="scale-item__lbl">млн ₽ · 4 объекта</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>Экономика</span><span>CAPEX · Окупаемость</span></div>
+</section>
+
+<!-- 09 Дорожная карта -->
+<section class="slide slide--dark">
+  <div class="slide__top">
+    <div class="slide__titles">
+      <div class="eyebrow">Дорожная карта</div>
       <h2>Следующие шаги</h2>
-      <ol class="steps" style="max-width:720px;margin-top:32px">
-        <li><div class="sn">1</div><div><h3>Пилот на СКРУ-2</h3><p>Развернуть первый AI-узел, проверить сценарии на реальном объекте</p></div></li>
-        <li><div class="sn">2</div><div><h3>База знаний</h3><p>Загрузить документацию прошлых проектов: проходка, замораживание, ЗОС</p></div></li>
-        <li><div class="sn">3</div><div><h3>Обучение команды</h3><p>Инженеры и прорабы — работа с AI-ассистентом в полевых условиях</p></div></li>
-        <li><div class="sn">4</div><div><h3>Масштабирование</h3><p>Норильск · Сатимола · Котельниково — подключение к корпоративной сети</p></div></li>
-      </ol>
-      <span class="pill">Локальная AI-сеть · Безопасность · Накопленный опыт</span>
     </div>
-    <div class="footer"><span>ДОРОЖНАЯ КАРТА</span><span>09 / 09</span></div>
-  </section>
+    <span class="slide__num">09 / 09</span>
+  </div>
+  <div class="body">
+    <div class="roadmap">
+      <div class="roadmap-step">
+        <div class="roadmap-step__dot">01</div>
+        <div class="roadmap-step__title">Пилот</div>
+        <div class="roadmap-step__meta">
+          <strong>Срок:</strong> 2–3 мес.<br>
+          <strong>KPI:</strong> 3 сценария, latency &lt;3с<br>
+          <strong>Риск:</strong> Качество данных<br>
+          <strong>Результат:</strong> Proof of concept
+        </div>
+      </div>
+      <div class="roadmap-step">
+        <div class="roadmap-step__dot">02</div>
+        <div class="roadmap-step__title">Первый объект</div>
+        <div class="roadmap-step__meta">
+          <strong>Срок:</strong> 3–4 мес.<br>
+          <strong>KPI:</strong> 50+ пользователей<br>
+          <strong>Риск:</strong> Adoption<br>
+          <strong>Результат:</strong> Соликамск live
+        </div>
+      </div>
+      <div class="roadmap-step">
+        <div class="roadmap-step__dot">03</div>
+        <div class="roadmap-step__title">Масштабирование</div>
+        <div class="roadmap-step__meta">
+          <strong>Срок:</strong> 4–6 мес.<br>
+          <strong>KPI:</strong> 2–3 объекта<br>
+          <strong>Риск:</strong> Интеграции<br>
+          <strong>Результат:</strong> Синхронизация
+        </div>
+      </div>
+      <div class="roadmap-step">
+        <div class="roadmap-step__dot">04</div>
+        <div class="roadmap-step__title">Интеграция</div>
+        <div class="roadmap-step__meta">
+          <strong>Срок:</strong> 3–4 мес.<br>
+          <strong>KPI:</strong> 4 объекта online<br>
+          <strong>Риск:</strong> VPN, безопасность<br>
+          <strong>Результат:</strong> Единая сеть
+        </div>
+      </div>
+      <div class="roadmap-step roadmap-step--final">
+        <div class="roadmap-step__dot">05</div>
+        <div class="roadmap-step__title">Единая AI-сеть</div>
+        <div class="roadmap-step__meta">
+          <strong>Срок:</strong> 12–18 мес. total<br>
+          <strong>KPI:</strong> 4 объекта + ГО<br>
+          <strong>Риск:</strong> Масштаб знаний<br>
+          <strong>Результат:</strong> Корпоративный AI-актив
+        </div>
+      </div>
+    </div>
+    <div class="chips" style="justify-content:center;margin-top:28px">
+      <span class="chip">Локальная AI-сеть</span>
+      <span class="chip">Безопасность</span>
+      <span class="chip">Накопленный опыт</span>
+    </div>
+  </div>
+  <div class="footer"><span>Дорожная карта</span><span>5 этапов · 12–18 мес.</span></div>
+</section>
 
 </div>
 </body>

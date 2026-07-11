@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Локальная AI-сеть — Neo Noir</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+  <style>
+    :root {
+      --bg: #0A0A0F;
+      --panel: rgba(255,255,255,0.04);
+      --panel-2: rgba(255,255,255,0.06);
+      --light: #12121A;
+      --text: #F4F4F5;
+      --text-inv: #FFFFFF;
+      --muted: #A1A1AA;
+      --dim: rgba(161,161,170,0.6);
+      --accent: #22D3EE;
+      --accent-dark: #06B6D4;
+      --accent-dim: rgba(34,211,238,0.12);
+      --accent-border: rgba(34,211,238,0.35);
+      --teal-hero: linear-gradient(160deg, #0A0A0F 0%, #12121A 40%, #1E1B4B 100%);
+      --blue: #60A5FA;
+      --purple: #C084FC;
+      --warn: #FBBF24;
+      --danger: #F87171;
+      --line: rgba(34,211,238,0.12);
+      --radius: 16px;
+      --radius-sm: 10px;
+      --glass: rgba(18,18,26,0.85);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+      background: #0A0A0F;
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+    .deck {
+      scroll-snap-type: y mandatory;
+      height: 100vh;
+      overflow-y: scroll;
+    }
+    .slide {
+      scroll-snap-align: start;
+      min-height: 100vh;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      padding: 48px 64px 72px;
+      overflow: hidden;
+    }
+    .slide--light { background: #12121A; color: var(--text); }
+    .slide--light .card {
+      background: rgba(255,255,255,0.04);
+      border-color: rgba(34,211,238,0.15);
+      box-shadow: 0 0 40px rgba(34,211,238,0.06);
+      color: #fff;
+    }
+    .slide--light .card p { color: var(--muted); }
+    .slide--light table.data td { background: rgba(255,255,255,0.04); color: #fff; }
+    .slide--dark {
+      background: var(--teal-hero);
+      color: var(--text-inv);
+    }
+    .slide__grid-bg {
+      position: absolute; inset: 0; pointer-events: none;
+      background-image:
+        radial-gradient(ellipse at 20% 20%, rgba(0,201,177,0.25), transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(255,255,255,0.08), transparent 45%);
+    }
+    .slide--light .slide__grid-bg {
+      background-image:
+        radial-gradient(ellipse at 90% 10%, rgba(0,201,177,0.08), transparent 40%),
+        radial-gradient(ellipse at 10% 90%, rgba(13,155,138,0.06), transparent 40%);
+    }
+    .tag {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--accent); margin-bottom: 12px;
+    }
+    .slide--light .tag { color: var(--accent-dark); }
+    .slide--dark .tag { color: rgba(255,255,255,0.85); }
+    .slide--dark h1, .slide--dark h2 { color: #fff; }
+    .slide--dark .lead { color: rgba(255,255,255,0.75); }
+    .slide--dark .note { color: #fff; border-color: rgba(255,255,255,0.25); background: rgba(255,255,255,0.06); }
+    .slide--dark .slide-caption {
+      font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase;
+      font-weight: 900; color: #fff !important; margin-bottom: 12px;
+    }
+    .slide--dark .tl-body p, .slide--dark .tl-body h4 { color: #fff; }
+    .slide--dark .source { color: rgba(255,255,255,0.85); }
+    .slide--dark .timeline-label { color: #fff !important; }
+    h1 {
+      font-size: clamp(40px, 5vw, 64px);
+      font-weight: 900; line-height: 1.05; letter-spacing: -0.03em;
+    }
+    h2 {
+      font-size: clamp(32px, 3.5vw, 48px);
+      font-weight: 800; line-height: 1.08; letter-spacing: -0.02em;
+    }
+    .lead {
+      font-size: 18px; line-height: 1.55; color: var(--muted);
+      max-width: 820px; margin-top: 16px;
+    }
+    .footer {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 14px 64px; display: flex; justify-content: space-between;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
+      color: var(--dim); text-transform: uppercase;
+    }
+    .slide--light .footer { color: #7a9a88; }
+    .slide--dark .footer { color: rgba(255,255,255,0.45); }
+    .inner { position: relative; z-index: 2; flex: 1; display: flex; flex-direction: column; min-height: 0; }
+    .inner--fit { justify-content: space-between; }
+    .modules-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .modules-grid .card { padding: 12px 14px; }
+    .modules-grid .card h3 { font-size: 11px; margin-bottom: 4px; }
+    .modules-grid .card p { font-size: 12px; line-height: 1.35; }
+    .modules-grid .icon-wrap { width: 30px; height: 30px; }
+    .modules-grid .icon-wrap svg { width: 15px; height: 15px; }
+    .slide-8-grid { align-items: stretch; flex: 1; min-height: 0; }
+    .slide-8-left { display: flex; flex-direction: column; gap: 14px; min-height: 0; }
+    .slide-8-right { display: flex; flex-direction: column; gap: 12px; min-height: 0; }
+    .timeline-v--compact .tl-item { padding-bottom: 14px; }
+    .timeline-v--compact .tl-body h4 { font-size: 13px; }
+    .timeline-v--compact .tl-body p { font-size: 12px; line-height: 1.4; }
+    .map-block {
+      border-radius: 14px; overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.22);
+      background: rgba(255,255,255,0.06);
+      flex: 1; display: flex; flex-direction: column; min-height: 0;
+    }
+    .map-block img { display: block; width: 100%; flex: 1; object-fit: cover; min-height: 160px; }
+    .map-block__caption {
+      padding: 10px 12px; color: rgba(255,255,255,0.9);
+      font-size: 11px; line-height: 1.35;
+    }
+    .table-compact { font-size: 12px; }
+    .table-compact td, .table-compact th { padding: 8px 12px; }
+    .table-compact tr.total td { font-size: 13px; }
+    .card {
+      background: var(--glass);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      box-shadow: 0 20px 60px rgba(10,92,82,0.12);
+    }
+    .slide--light .card {
+      background: #fff;
+      border-color: rgba(13,155,138,0.12);
+      box-shadow: 0 12px 40px rgba(13,155,138,0.08);
+    }
+    .slide--dark .card {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,255,0.2);
+      color: #fff;
+    }
+    .slide--dark .card p { color: rgba(255,255,255,0.7); }
+    .slide--dark .card h3 { color: #fff; }
+    .card--accent { border-left: 3px solid var(--accent); }
+    .card h3 {
+      font-size: 13px; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.06em; margin-bottom: 6px;
+    }
+    .card p { font-size: 14px; line-height: 1.45; color: var(--muted); }
+    .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .g3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .g4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .g5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+    .icon-row { display: flex; align-items: flex-start; gap: 12px; }
+    .icon-wrap {
+      width: 36px; height: 36px; border-radius: var(--radius-sm);
+      background: var(--accent-dim); border: 1px solid var(--accent-border);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .icon-wrap svg { width: 18px; height: 18px; color: var(--accent); stroke-width: 1.75; }
+    .slide--light .icon-wrap { background: rgba(13,155,138,0.08); }
+    .slide--light .icon-wrap svg { color: var(--accent-dark); }
+    .slide--dark .icon-wrap svg { color: #00FFC2; }
+    .metric { font-size: 32px; font-weight: 900; color: var(--accent-dark); line-height: 1; }
+    .chip {
+      display: inline-block; font-size: 11px; font-weight: 700;
+      padding: 6px 14px; border-radius: 999px;
+      background: var(--accent-dim); color: var(--accent-dark);
+      border: 1px solid var(--accent-border); letter-spacing: 0.04em;
+    }
+    .slide--dark .chip {
+      background: rgba(255,255,255,0.15); color: #fff; border-color: rgba(255,255,255,0.3);
+    }
+    .chip--warn { background: rgba(255,176,32,0.12); color: var(--warn); border-color: rgba(255,176,32,0.3); }
+    .chip--muted { background: rgba(166,200,182,0.08); color: var(--muted); border-color: var(--line); }
+    table.data {
+      width: 100%; border-collapse: separate; border-spacing: 0 6px;
+      font-size: 14px;
+    }
+    table.data th {
+      text-align: left; font-size: 10px; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--dim); padding: 10px 14px;
+      background: var(--accent-dark); color: #fff;
+    }
+    .slide--light table.data th { background: var(--accent-dark); color: #fff; }
+    table.data td {
+      padding: 12px 14px; background: var(--panel-2);
+      border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+    }
+    table.data tr td:first-child { border-left: 1px solid var(--line); border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
+    table.data tr td:last-child { border-right: 1px solid var(--line); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; text-align: right; font-weight: 700; color: var(--accent); }
+    .slide--light table.data td { background: #fff; border-color: rgba(18,48,38,0.08); }
+    .slide--light table.data tr td:last-child { color: #0DAE7A; }
+    table.data tr.total td {
+      background: linear-gradient(135deg, #0B2A1F, #0F3528);
+      border-color: var(--accent-border); font-weight: 800; font-size: 15px;
+    }
+    .slide--light table.data tr.total td {
+      background: linear-gradient(135deg, #0D9B8A, #00C9B1);
+      color: #fff !important; border: none;
+    }
+    .note {
+      font-size: 11px; line-height: 1.5; color: var(--dim);
+      padding: 12px 16px; border-radius: var(--radius-sm);
+      border: 1px solid var(--line); margin-top: 12px;
+    }
+    .slide--light .note { color: #7a9a88; border-color: rgba(18,48,38,0.1); background: rgba(246,251,248,0.8); }
+    .scenario { border-top: 2px solid var(--accent); padding-top: 14px; }
+    .scenario--base { border-color: var(--blue); }
+    .scenario--opt { border-color: var(--purple); }
+    .timeline-v { display: flex; flex-direction: column; gap: 0; }
+    .tl-item {
+      display: grid; grid-template-columns: 80px 24px 1fr; gap: 16px;
+      align-items: start; padding-bottom: 20px; position: relative;
+    }
+    .tl-item:not(:last-child)::before {
+      content: ''; position: absolute; left: 103px; top: 24px; bottom: 0;
+      width: 1px; background: var(--line);
+    }
+    .tl-year { font-size: 14px; font-weight: 800; color: var(--accent); text-align: right; }
+    .slide--dark .tl-year { color: #00FFC2; }
+    .tl-dot {
+      width: 12px; height: 12px; border-radius: 50%;
+      background: var(--accent); box-shadow: 0 0 12px rgba(33,230,167,0.5);
+      margin-top: 4px;
+    }
+    .tl-body h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+    .tl-body p { font-size: 13px; color: var(--muted); line-height: 1.45; }
+    .arch-stack { display: flex; flex-direction: column; gap: 8px; max-width: 520px; margin: 0 auto; }
+    .arch-layer {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 20px; background: var(--panel);
+      border: 1px solid var(--line); border-radius: var(--radius-sm);
+      position: relative;
+    }
+    .slide--light .arch-layer { background: #fff; border-color: rgba(18,48,38,0.1); }
+    .arch-layer strong { font-size: 14px; font-weight: 700; flex: 1; }
+    .arch-layer span { font-size: 12px; color: var(--muted); }
+    .arch-arrow {
+      text-align: center; color: var(--accent); font-size: 18px; line-height: 1;
+      opacity: 0.6;
+    }
+    .road-step {
+      padding: 16px; border-radius: var(--radius);
+      border: 1px solid var(--line); background: var(--panel);
+      position: relative;
+    }
+    .slide--light .road-step { background: #fff; }
+    .road-step .num {
+      font-size: 28px; font-weight: 900; color: var(--accent);
+      opacity: 0.4; line-height: 1; margin-bottom: 8px;
+    }
+    .road-step h3 { font-size: 13px; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; }
+    .road-step .meta { font-size: 11px; color: var(--muted); line-height: 1.5; }
+    .road-step .meta strong { color: var(--text); font-weight: 600; }
+    .slide--light .road-step .meta strong { color: #123026; }
+    .bar-chart { display: flex; align-items: flex-end; gap: 24px; height: 200px; padding-top: 36px; }
+    .bar-item { flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; }
+    .bar {
+      width: 100%; max-width: 90px; border-radius: 10px 10px 4px 4px;
+      background: linear-gradient(180deg, var(--accent), var(--accent-dark));
+      position: relative; min-height: 20px;
+      box-shadow: 0 8px 24px rgba(0,201,177,0.3);
+    }
+    .bar__val {
+      position: absolute; top: -32px; left: 50%; transform: translateX(-50%);
+      font-size: 13px; font-weight: 800; color: var(--accent-dark);
+      white-space: nowrap; background: rgba(255,255,255,0.95);
+      padding: 2px 8px; border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .slide--dark .bar__val { color: #fff; background: rgba(0,0,0,0.35); }
+    .bar__lbl { margin-top: 10px; font-size: 12px; font-weight: 700; color: var(--muted); text-align: center; }
+    .slide--dark .bar__lbl { color: rgba(255,255,255,0.7); }
+    .road-flow {
+      display: flex; align-items: stretch; gap: 0; margin-top: 32px; flex: 1;
+    }
+    .road-flow__step {
+      flex: 1; position: relative; padding: 28px 16px 24px;
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+      border-radius: var(--radius-sm); margin-right: 12px;
+      text-align: center;
+    }
+    .road-flow__step:last-child { margin-right: 0; }
+    .road-flow__arrow {
+      position: absolute; right: -18px; top: 50%; transform: translateY(-50%);
+      width: 0; height: 0; border-top: 14px solid transparent;
+      border-bottom: 14px solid transparent; border-left: 14px solid var(--accent);
+      z-index: 2;
+    }
+    .road-flow__step:last-child .road-flow__arrow { display: none; }
+    .road-flow__num { font-size: 52px; font-weight: 900; color: var(--accent); opacity: 0.6; line-height: 1; }
+    .road-flow__step h3 { font-size: 17px; font-weight: 800; text-transform: uppercase; margin: 10px 0 14px; color: #fff; }
+    .road-flow__meta { font-size: 14px; line-height: 1.65; color: #fff; }
+    .road-flow__meta strong { color: #fff; font-weight: 700; }
+    .center-diagram { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; }
+    .cap-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .cap-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 14px; border-radius: var(--radius-sm);
+      background: var(--panel); border: 1px solid var(--line);
+      font-size: 12px; font-weight: 600; line-height: 1.3;
+    }
+    .slide--light .cap-item { background: #fff; }
+    .cap-item svg { width: 16px; height: 16px; color: var(--accent); flex-shrink: 0; }
+    .hero-split { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; flex: 1; }
+    .source { font-size: 10px; color: var(--dim); margin-top: 6px; font-style: italic; }
+    /* Theme switcher */
+    .theme-bar {
+      position: fixed; top: 14px; right: 64px; z-index: 100;
+      display: flex; gap: 6px; align-items: center;
+      background: rgba(15,41,38,0.75); backdrop-filter: blur(12px);
+      padding: 8px 16px; border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.12);
+      font-size: 11px; font-weight: 600;
+    }
+    .theme-bar__label { color: rgba(255,255,255,0.5); letter-spacing: 0.08em; text-transform: uppercase; }
+    .theme-bar__link {
+      color: #fff; text-decoration: none; padding: 5px 12px; border-radius: 999px;
+      opacity: 0.65; transition: opacity 0.2s, background 0.2s;
+    }
+    .theme-bar__link:hover, .theme-bar__link--active { opacity: 1; background: rgba(0,201,177,0.25); }
+    /* Slide 1 */
+    .slide-1-hero {
+      justify-content: center; align-items: center; text-align: center;
+      max-width: none; width: 100%;
+    }
+    .slide-1-hero > div { display: flex; flex-direction: column; align-items: center; }
+    .slide-1-hero .lead { margin-left: auto; margin-right: auto; }
+    .slide-1-hero .chip-wrap { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 32px; }
+    /* Slide 2 */
+    .tag--problem {
+      font-size: 33px; letter-spacing: 0.12em; color: #EF4444 !important;
+      margin-bottom: 20px;
+    }
+    .slide--light .tag--problem { color: #EF4444 !important; }
+    .slide-2-svg { width: 100%; max-width: 1100px; }
+    /* Slide 3 */
+    .slide-3-diagram { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 0; }
+    /* Slide 4 */
+    .slide-4-layout {
+      margin-top: 18px; flex: 1; display: grid;
+      grid-template-columns: 1fr 1fr; grid-template-rows: 1fr auto;
+      gap: 18px; min-height: 0;
+    }
+    .slide-4-layout__tasks { grid-column: 1; grid-row: 1; }
+    .slide-4-layout__pipeline { grid-column: 2; grid-row: 1; }
+    .slide-4-layout__auto { grid-column: 1 / -1; grid-row: 2; max-width: 820px; margin: 0 auto; width: 100%; }
+    .slide-4-card { padding: 28px 28px 22px; }
+    .slide-4-card h3 { font-size: 14px; margin-bottom: 16px; }
+    .slide-4-tasks .chip { font-size: 15px; padding: 10px 18px; }
+    .slide-4-tasks span:not(.chip) { font-size: 16px !important; }
+    .slide-4-tasks > div { gap: 14px !important; margin-bottom: 14px !important; }
+    .slide-4-auto .bar-chart { height: 280px; gap: 36px; padding-top: 52px; }
+    .slide-4-auto .bar__val { font-size: 22px; top: -44px; }
+    .slide-4-auto .bar__lbl { font-size: 15px; margin-top: 14px; }
+    .slide-4-auto h3 { font-size: 16px; margin-bottom: 18px; }
+    /* Slide 5 */
+    .slide-5-split {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+      align-items: center; flex: 1; min-height: 0;
+    }
+    .slide-5-big .bar-chart { height: 300px; gap: 36px; padding-top: 56px; }
+    .slide-5-big .bar__val { font-size: 26px; top: -48px; }
+    .slide-5-big .bar__lbl { font-size: 22px; margin-top: 16px; }
+    .slide-5-big .slide-caption { font-size: 18px; }
+    .slide-5-big .note { font-size: 16px; }
+    /* Slide 6 */
+    .slide-6-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 20px; flex: 1; min-height: 0; align-items: stretch; }
+    .perimeter-diagram { padding: 20px; }
+    .perimeter-diagram h3 { font-size: 14px; margin-bottom: 12px; }
+    .perimeter-diagram p { font-size: 13px; line-height: 1.55; margin-top: 8px; }
+    .risk-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      margin-top: 12px; padding: 10px 14px; border-radius: 12px;
+      background: rgba(0,201,177,0.1); border: 1px solid rgba(0,201,177,0.3);
+      font-size: 13px; font-weight: 700; color: var(--accent-dark);
+    }
+    /* Slide 7 */
+    .slide-7-right { display: flex; flex-direction: column; gap: 12px; min-height: 0; }
+    .slide-7-scenario { flex: 2; padding: 20px !important; }
+    .slide-7-scenario svg { max-height: 380px; }
+    .slide-7-compete { flex: 1; padding: 16px 18px !important; }
+    .slide-7-compete h3, .slide-7-compete p { font-size: 14px !important; line-height: 1.55 !important; }
+    /* Slide 8 */
+    .slide-8-econ { display: grid; grid-template-columns: 1.4fr 0.6fr; gap: 24px; flex: 1; align-items: stretch; }
+    .slide-8-econ .metric { font-size: 48px; }
+    /* Slide 9 */
+    .roadmap-modern { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-top: 28px; flex: 1; align-items: stretch; }
+    .roadmap-modern__step {
+      position: relative; padding: 24px 18px 20px; text-align: center;
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.22);
+      border-radius: var(--radius); display: flex; flex-direction: column;
+    }
+    .roadmap-modern__step--final { border-color: var(--accent); background: rgba(0,201,177,0.15); }
+    .roadmap-modern__num { font-size: 64px; font-weight: 900; color: var(--accent); opacity: 0.55; line-height: 1; }
+    .roadmap-modern__step h3 { font-size: 20px; font-weight: 800; text-transform: uppercase; margin: 12px 0 16px; color: #fff; }
+    .roadmap-modern__meta { font-size: 15px; line-height: 1.7; color: rgba(255,255,255,0.9); flex: 1; }
+    .roadmap-modern__meta strong { color: #fff; font-weight: 700; }
+    .roadmap-modern__connector {
+      position: absolute; right: -14px; top: 50%; transform: translateY(-50%);
+      width: 28px; height: 3px; background: var(--accent); z-index: 2;
+    }
+    .roadmap-modern__step:last-child .roadmap-modern__connector { display: none; }
+    @media print {
+      body { background: #fff; }
+      .deck { height: auto; overflow: visible; scroll-snap-type: none; }
+      .slide { page-break-after: always; page-break-inside: avoid; min-height: 100vh; height: 100vh; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .slide:last-child { page-break-after: auto; }
+    }
+  @media (max-width: 1100px) {
+      .slide { padding: 32px 28px 64px; }
+      .g2, .g3, .g4, .g5, .cap-grid, .hero-split, .slide-8-grid { grid-template-columns: 1fr; }
+      .slide-4-layout { grid-template-columns: 1fr; }
+      .slide-4-layout__auto { grid-column: 1; }
+      .slide-5-split { grid-template-columns: 1fr; }
+      .slide-6-grid { grid-template-columns: 1fr; }
+      .slide-8-econ { grid-template-columns: 1fr; }
+      .roadmap-modern { grid-template-columns: 1fr; }
+      .roadmap-modern__connector { display: none; }
+      .road-flow { flex-direction: column; }
+      .road-flow__step { margin-right: 0; margin-bottom: 12px; }
+      .road-flow__arrow {
+        right: auto; left: 50%; top: auto; bottom: -18px;
+        transform: translateX(-50%) rotate(90deg);
+      }
+      .modules-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<nav class="theme-bar">
+  <span class="theme-bar__label">Стиль</span>
+  <a href="index.html" class="theme-bar__link">Glass Teal</a>
+  <a href="v2-bento.html" class="theme-bar__link">Bento Light</a>
+  <a href="v3-noir.html" class="theme-bar__link theme-bar__link--active">Neo Noir</a>
+</nav>
+<div class="deck">
+
+<!-- SLIDE 1 -->
+<section class="slide slide--dark">
+  <div class="slide__grid-bg"></div>
+  <div class="inner slide-1-hero">
+    <div>
+      <div class="tag">Board Presentation · 2026</div>
+      <h1>Локальная<br>AI-сеть</h1>
+      <p class="lead">Единая интеллектуальная инфраструктура шахтостроительной компании</p>
+      <div class="chip-wrap">
+        <span class="chip">Закрытый контур</span>
+        <span class="chip">On-premise LLM (локальная большая языковая модель)</span>
+        <span class="chip">Enterprise AI</span>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>Локальная AI-сеть</span><span>01 / 09</span></div>
+</section>
+
+<!-- SLIDE 2 -->
+<section class="slide slide--light">
+  <div class="slide__grid-bg"></div>
+  <div class="inner center-diagram">
+    <div class="tag tag--problem">Проблема</div>
+    <h2 style="text-align:center;margin-bottom:24px">Потеря опыта между объектами</h2>
+    <div style="width:100%;display:flex;justify-content:center;flex:1;align-items:center">
+      <svg class="slide-2-svg" viewBox="0 0 1100 560" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="acc2" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#00C9B1"/><stop offset="100%" stop-color="#0D9B8A"/>
+          </linearGradient>
+          <linearGradient id="redGlow" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#FEE2E2"/><stop offset="100%" stop-color="#FECACA"/>
+          </linearGradient>
+          <filter id="softShadow"><feDropShadow dx="0" dy="8" stdDeviation="12" flood-opacity="0.12"/></filter>
+        </defs>
+        <!-- СЕГОДНЯ -->
+        <rect x="40" y="40" width="480" height="480" rx="32" fill="#fff" stroke="rgba(239,68,68,0.4)" stroke-width="3" filter="url(#softShadow)"/>
+        <text x="280" y="88" text-anchor="middle" fill="#EF4444" font-family="Inter" font-size="32" font-weight="900" letter-spacing="0.16em">СЕГОДНЯ</text>
+        <g filter="url(#softShadow)">
+          <circle cx="170" cy="220" r="100" fill="url(#redGlow)" stroke="#EF4444" stroke-width="2.5" stroke-dasharray="6 4"/>
+          <text x="170" y="188" text-anchor="middle" fill="#DC2626" font-size="20" font-weight="900">Соликамск</text>
+          <text x="170" y="214" text-anchor="middle" fill="#B91C1C" font-size="16" font-weight="700">Люди</text>
+          <text x="170" y="236" text-anchor="middle" fill="#B91C1C" font-size="16" font-weight="700">Документы</text>
+          <text x="170" y="258" text-anchor="middle" fill="#B91C1C" font-size="16" font-weight="700">Решения</text>
+        </g>
+        <g filter="url(#softShadow)">
+          <circle cx="390" cy="220" r="100" fill="url(#redGlow)" stroke="#EF4444" stroke-width="2.5" stroke-dasharray="6 4"/>
+          <text x="390" y="188" text-anchor="middle" fill="#DC2626" font-size="20" font-weight="900">Норильск</text>
+          <text x="390" y="214" text-anchor="middle" fill="#B91C1C" font-size="16" font-weight="700">Люди</text>
+          <text x="390" y="236" text-anchor="middle" fill="#B91C1C" font-size="16" font-weight="700">Документы</text>
+          <text x="390" y="258" text-anchor="middle" fill="#B91C1C" font-size="16" font-weight="700">Решения</text>
+        </g>
+        <g filter="url(#softShadow)">
+          <circle cx="170" cy="420" r="100" fill="url(#redGlow)" stroke="#EF4444" stroke-width="2.5" stroke-dasharray="6 4"/>
+          <text x="170" y="388" text-anchor="middle" fill="#DC2626" font-size="20" font-weight="900">Сатимола</text>
+          <text x="170" y="414" text-anchor="middle" fill="#B91C1C" font-size="16" font-weight="700">Люди</text>
+          <text x="170" y="436" text-anchor="middle" fill="#B91C1C" font-size="16" font-weight="700">Документы</text>
+          <text x="170" y="458" text-anchor="middle" fill="#B91C1C" font-size="16" font-weight="700">Решения</text>
+        </g>
+        <g filter="url(#softShadow)">
+          <circle cx="390" cy="420" r="100" fill="url(#redGlow)" stroke="#EF4444" stroke-width="2.5" stroke-dasharray="6 4"/>
+          <text x="390" y="388" text-anchor="middle" fill="#DC2626" font-size="18" font-weight="900">Котельниково</text>
+          <text x="390" y="414" text-anchor="middle" fill="#B91C1C" font-size="16" font-weight="700">Люди</text>
+          <text x="390" y="436" text-anchor="middle" fill="#B91C1C" font-size="16" font-weight="700">Документы</text>
+          <text x="390" y="458" text-anchor="middle" fill="#B91C1C" font-size="16" font-weight="700">Решения</text>
+        </g>
+        <text x="280" y="530" text-anchor="middle" fill="#64748B" font-size="16" font-weight="700">4 изолированных контура · опыт не переносится</text>
+        <!-- Arrow -->
+        <circle cx="550" cy="280" r="28" fill="url(#acc2)"/>
+        <path d="M538 280 L562 280 M556 272 L562 280 L556 288" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <!-- ЗАВТРА -->
+        <rect x="580" y="40" width="480" height="480" rx="32" fill="rgba(0,201,177,0.05)" stroke="rgba(0,201,177,0.45)" stroke-width="3" filter="url(#softShadow)"/>
+        <text x="820" y="88" text-anchor="middle" fill="#0D9B8A" font-size="32" font-weight="900" letter-spacing="0.16em">ЗАВТРА</text>
+        <rect x="630" y="110" width="380" height="360" rx="36" fill="#fff" stroke="rgba(13,155,138,0.35)" stroke-width="2.5" filter="url(#softShadow)"/>
+        <text x="820" y="165" text-anchor="middle" fill="#0D9B8A" font-size="28" font-weight="900">Единая AI-сеть</text>
+        <circle cx="820" cy="300" r="120" fill="rgba(0,201,177,0.06)" stroke="url(#acc2)" stroke-width="3"/>
+        <circle cx="820" cy="300" r="85" fill="none" stroke="rgba(0,201,177,0.25)" stroke-width="1.5" stroke-dasharray="8 6"/>
+        <text x="820" y="268" text-anchor="middle" fill="#0D9B8A" font-size="22" font-weight="800">Люди</text>
+        <text x="820" y="298" text-anchor="middle" fill="#0D9B8A" font-size="22" font-weight="800">Документы</text>
+        <text x="820" y="328" text-anchor="middle" fill="#0D9B8A" font-size="22" font-weight="800">Решения</text>
+        <text x="820" y="365" text-anchor="middle" fill="#5a7a68" font-size="15" font-weight="700">RAG · LLM · KB · Agents</text>
+        <text x="820" y="530" text-anchor="middle" fill="#64748B" font-size="16" font-weight="700">Знания структурируются и возвращаются в решения</text>
+      </svg>
+    </div>
+  </div>
+  <div class="footer"><span>Проблема</span><span>02 / 09</span></div>
+</section>
+
+<!-- SLIDE 3 -->
+<section class="slide slide--dark">
+  <div class="slide__grid-bg"></div>
+  <div class="inner inner--fit">
+    <div>
+      <div class="tag">Решение</div>
+      <h2>Локальная AI-сеть для всех направлений</h2>
+      <p class="lead" style="margin-top:8px;font-size:16px">Документы → RAG → LLM → задачи на объектах</p>
+    </div>
+    <div class="slide-3-diagram">
+      <svg viewBox="0 0 1000 680" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-height:calc(100vh - 200px)">
+        <defs>
+          <linearGradient id="radGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#00FFC2"/><stop offset="100%" stop-color="#00C9B1"/>
+          </linearGradient>
+          <filter id="glow3"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <!-- connector lines -->
+        <g stroke="#00FFC2" stroke-width="2" opacity="0.4" stroke-linecap="round">
+          <line x1="500" y1="118" x2="500" y2="218"/>
+          <line x1="680" y1="210" x2="590" y2="270"/>
+          <line x1="750" y1="400" x2="610" y2="400"/>
+          <line x1="250" y1="400" x2="390" y2="400"/>
+          <line x1="320" y1="210" x2="410" y2="270"/>
+        </g>
+        <!-- outer: documents -->
+        <circle cx="500" cy="340" r="130" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.4)" stroke-width="3"/>
+        <text x="500" y="325" text-anchor="middle" fill="#fff" font-size="20" font-weight="900">Документы</text>
+        <text x="500" y="352" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="13" font-weight="600">PDF · Excel · Скан · Нормативы</text>
+        <!-- RAG -->
+        <circle cx="500" cy="340" r="82" fill="rgba(0,201,177,0.14)" stroke="rgba(0,255,194,0.55)" stroke-width="2.5"/>
+        <text x="500" y="332" text-anchor="middle" fill="#fff" font-size="17" font-weight="900">RAG</text>
+        <text x="500" y="354" text-anchor="middle" fill="rgba(255,255,255,0.85)" font-size="12" font-weight="600">поиск + генерация</text>
+        <!-- LLM core -->
+        <circle cx="500" cy="340" r="48" fill="url(#radGrad)" opacity="0.4" stroke="#00FFC2" stroke-width="2.5" filter="url(#glow3)"/>
+        <text x="500" y="335" text-anchor="middle" fill="#fff" font-size="16" font-weight="900">LLM</text>
+        <text x="500" y="354" text-anchor="middle" fill="rgba(255,255,255,0.9)" font-size="11" font-weight="600">большая языковая модель</text>
+        <!-- tasks - bento cards -->
+        <g>
+          <rect x="360" y="36" width="280" height="72" rx="18" fill="rgba(0,201,177,0.18)" stroke="rgba(0,255,194,0.5)" stroke-width="1.5"/>
+          <text x="500" y="64" text-anchor="middle" fill="#fff" font-size="16" font-weight="900">Проектирование</text>
+          <text x="500" y="88" text-anchor="middle" fill="rgba(255,255,255,0.85)" font-size="13" font-weight="600">верификация · альтернативы · разделы</text>
+        </g>
+        <g>
+          <rect x="660" y="148" width="280" height="72" rx="18" fill="rgba(56,189,248,0.18)" stroke="rgba(56,189,248,0.5)" stroke-width="1.5"/>
+          <text x="800" y="176" text-anchor="middle" fill="#fff" font-size="16" font-weight="900">Планирование</text>
+          <text x="800" y="200" text-anchor="middle" fill="rgba(255,255,255,0.85)" font-size="13" font-weight="600">графики · риски · ресурсы · сроки</text>
+        </g>
+        <g>
+          <rect x="660" y="380" width="280" height="72" rx="18" fill="rgba(245,158,11,0.18)" stroke="rgba(245,158,11,0.5)" stroke-width="1.5"/>
+          <text x="800" y="408" text-anchor="middle" fill="#fff" font-size="16" font-weight="900">Строительство</text>
+          <text x="800" y="432" text-anchor="middle" fill="rgba(255,255,255,0.85)" font-size="13" font-weight="600">ППР · контроль работ · ИД</text>
+        </g>
+        <g>
+          <rect x="60" y="380" width="280" height="72" rx="18" fill="rgba(0,201,177,0.14)" stroke="rgba(0,255,194,0.4)" stroke-width="1.5"/>
+          <text x="200" y="408" text-anchor="middle" fill="#fff" font-size="16" font-weight="900">Финансы</text>
+          <text x="200" y="432" text-anchor="middle" fill="rgba(255,255,255,0.85)" font-size="13" font-weight="600">сметы · отклонения · прогноз затрат</text>
+        </g>
+        <g>
+          <rect x="60" y="148" width="280" height="72" rx="18" fill="rgba(167,139,250,0.18)" stroke="rgba(167,139,250,0.5)" stroke-width="1.5"/>
+          <text x="200" y="176" text-anchor="middle" fill="#fff" font-size="16" font-weight="900">Маркшейдерия</text>
+          <text x="200" y="200" text-anchor="middle" fill="rgba(255,255,255,0.85)" font-size="13" font-weight="600">объёмы · план/факт · схемы</text>
+        </g>
+        <text x="500" y="620" text-anchor="middle" fill="rgba(255,255,255,0.75)" font-size="14" font-weight="600">AI Agents: извлечение данных · проверка нормативов · подготовка документов</text>
+      </svg>
+    </div>
+  </div>
+  <div class="footer"><span>Решение</span><span>03 / 09</span></div>
+</section>
+
+<!-- SLIDE 4 -->
+<section class="slide slide--light">
+  <div class="inner inner--fit">
+    <div>
+      <div class="tag">Возможности</div>
+      <h2>Чем помогает AI</h2>
+    </div>
+    <div class="slide-4-layout">
+      <div class="card slide-4-card slide-4-layout__tasks slide-4-tasks">
+        <h3 style="letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);font-weight:900">Задачи</h3>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;gap:12px;align-items:center">
+            <span class="chip" style="background:var(--accent-dim)">Проектирование</span>
+            <span style="font-size:16px;color:#5a7a68;font-weight:700">верификация решений</span>
+          </div>
+          <div style="display:flex;gap:12px;align-items:center">
+            <span class="chip" style="background:var(--accent-dim)">Финансовая аналитика</span>
+            <span style="font-size:16px;color:#5a7a68;font-weight:700">сметы · отклонения</span>
+          </div>
+          <div style="display:flex;gap:12px;align-items:center">
+            <span class="chip" style="background:var(--accent-dim)">Маркшейдерия</span>
+            <span style="font-size:16px;color:#5a7a68;font-weight:700">объемы · план/факт</span>
+          </div>
+          <div style="display:flex;gap:12px;align-items:center">
+            <span class="chip" style="background:var(--accent-dim)">Планирование</span>
+            <span style="font-size:16px;color:#5a7a68;font-weight:700">графики · риски · сроки</span>
+          </div>
+          <div style="display:flex;gap:12px;align-items:center">
+            <span class="chip" style="background:var(--accent-dim)">Строительство</span>
+            <span style="font-size:16px;color:#5a7a68;font-weight:700">ППР · контроль работ</span>
+          </div>
+          <div style="display:flex;gap:12px;align-items:center">
+            <span class="chip" style="background:var(--accent-dim)">Контроль</span>
+            <span style="font-size:16px;color:#5a7a68;font-weight:700">качество + ТБ</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card slide-4-card slide-4-layout__pipeline">
+        <h3 style="letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);font-weight:900">AI Pipeline</h3>
+        <svg viewBox="0 0 900 280" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
+          <defs>
+            <linearGradient id="stepAcc" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#21E6A7"/>
+              <stop offset="100%" stop-color="#0DAE7A"/>
+            </linearGradient>
+          </defs>
+          <g>
+            <rect x="10" y="30" width="200" height="200" rx="24" fill="#F6FBF8" stroke="rgba(18,48,38,0.12)" stroke-width="2"/>
+            <text x="110" y="95" text-anchor="middle" fill="#123026" font-size="28" font-weight="900">Вход</text>
+            <text x="110" y="135" text-anchor="middle" fill="#5a7a68" font-size="20" font-weight="700">Документы</text>
+            <text x="110" y="175" text-anchor="middle" fill="#0DAE7A" font-size="18" font-weight="800">КП · Сметы</text>
+          </g>
+          <g>
+            <rect x="230" y="30" width="210" height="200" rx="24" fill="#F6FBF8" stroke="rgba(13,174,122,0.35)" stroke-width="2"/>
+            <text x="335" y="95" text-anchor="middle" fill="#0DAE7A" font-size="28" font-weight="900">RAG</text>
+            <text x="335" y="135" text-anchor="middle" fill="#5a7a68" font-size="20" font-weight="700">поиск+генерация</text>
+            <text x="335" y="175" text-anchor="middle" fill="#0DAE7A" font-size="18" font-weight="800">Нормативы</text>
+          </g>
+          <g>
+            <rect x="460" y="30" width="210" height="200" rx="24" fill="#F6FBF8" stroke="rgba(18,48,38,0.12)" stroke-width="2"/>
+            <text x="565" y="95" text-anchor="middle" fill="#123026" font-size="28" font-weight="900">План</text>
+            <text x="565" y="135" text-anchor="middle" fill="#5a7a68" font-size="20" font-weight="700">Проработка</text>
+            <text x="565" y="175" text-anchor="middle" fill="#0DAE7A" font-size="18" font-weight="800">Графики · Риски</text>
+          </g>
+          <g>
+            <rect x="690" y="30" width="200" height="200" rx="24" fill="#F6FBF8" stroke="rgba(13,174,122,0.35)" stroke-width="2"/>
+            <text x="790" y="95" text-anchor="middle" fill="#0DAE7A" font-size="28" font-weight="900">Контроль</text>
+            <text x="790" y="135" text-anchor="middle" fill="#5a7a68" font-size="20" font-weight="700">OCR · Vision</text>
+            <text x="790" y="175" text-anchor="middle" fill="#0DAE7A" font-size="18" font-weight="800">качество + ТБ</text>
+          </g>
+          <path d="M210 130 L230 130" stroke="url(#stepAcc)" stroke-width="5" stroke-linecap="round"/>
+          <path d="M440 130 L460 130" stroke="url(#stepAcc)" stroke-width="5" stroke-linecap="round"/>
+          <path d="M670 130 L690 130" stroke="url(#stepAcc)" stroke-width="5" stroke-linecap="round"/>
+        </svg>
+      </div>
+
+      <div class="card slide-4-card slide-4-layout__auto slide-4-auto">
+        <h3 style="letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);font-weight:900;text-align:center">Автоматизация</h3>
+        <div class="bar-chart">
+          <div class="bar-item">
+            <div class="bar" style="height:65%"><span class="bar__val">65%</span></div>
+            <span class="bar__lbl">RAG (поиск+генерация)</span>
+          </div>
+          <div class="bar-item">
+            <div class="bar" style="height:78%"><span class="bar__val">78%</span></div>
+            <span class="bar__lbl">OCR (текст) · Vision (зрение)</span>
+          </div>
+          <div class="bar-item">
+            <div class="bar" style="height:60%;background:linear-gradient(180deg, var(--blue), #0DAE7A)"><span class="bar__val">60%</span></div>
+            <span class="bar__lbl">Аналитика</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>Возможности</span><span>04 / 09</span></div>
+</section>
+
+<!-- SLIDE 5 -->
+<section class="slide slide--dark">
+  <div class="slide__grid-bg"></div>
+  <div class="inner inner--fit">
+    <div>
+      <div class="tag">Отрасль</div>
+      <h2>AI в шахтостроении</h2>
+    </div>
+    <div class="slide-5-split">
+      <div class="card slide-5-big" style="padding:22px 22px 18px;overflow:visible;height:100%;display:flex;flex-direction:column;justify-content:center">
+        <h3 class="slide-caption">Сценарный эффект</h3>
+        <div class="bar-chart" style="height:240px;gap:28px;margin-top:12px;padding-top:44px;overflow:visible">
+          <div class="bar-item">
+            <div class="bar" style="height:86%"><span class="bar__val">20–35%</span></div>
+            <span class="bar__lbl">Сроки</span>
+          </div>
+          <div class="bar-item">
+            <div class="bar" style="height:74%;background:linear-gradient(180deg, var(--blue), var(--accent-dark))"><span class="bar__val">10–25%</span></div>
+            <span class="bar__lbl">Сметы</span>
+          </div>
+          <div class="bar-item">
+            <div class="bar" style="height:66%;background:linear-gradient(180deg, var(--purple), var(--accent-dark))"><span class="bar__val">15–30%</span></div>
+            <span class="bar__lbl">Качество</span>
+          </div>
+          <div class="bar-item">
+            <div class="bar" style="height:80%"><span class="bar__val">20–30%</span></div>
+            <span class="bar__lbl">ТБ</span>
+          </div>
+        </div>
+        <div class="note" style="margin-top:14px">
+          Числа — сценарные оценки. Фактический эффект зависит от зрелости процессов и уровня внедрения.
+        </div>
+      </div>
+
+      <div class="card" style="padding:18px;height:100%;display:flex;align-items:center;justify-content:center">
+        <svg viewBox="0 0 960 480" xmlns="http://www.w3.org/2000/svg" style="width:100%;filter:drop-shadow(0 16px 48px rgba(0,201,177,0.15))">
+          <defs>
+            <linearGradient id="cg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00C9B1"/><stop offset="100%" stop-color="#0D9B8A"/></linearGradient>
+          </defs>
+          <g stroke="#00C9B1" stroke-width="1.5" opacity="0.4">
+            <line x1="480" y1="240" x2="160" y2="80"/><line x1="480" y1="240" x2="800" y2="80"/>
+            <line x1="480" y1="240" x2="120" y2="400"/><line x1="480" y1="240" x2="840" y2="400"/>
+            <line x1="160" y1="80" x2="800" y2="80"/><line x1="120" y1="400" x2="840" y2="400"/>
+            <line x1="160" y1="80" x2="120" y2="400"/><line x1="800" y1="80" x2="840" y2="400"/>
+            <line x1="160" y1="80" x2="840" y2="400"/><line x1="800" y1="80" x2="120" y2="400"/>
+          </g>
+          <circle cx="480" cy="240" r="58" fill="url(#cg2)" opacity="0.2" stroke="#00FFC2" stroke-width="2"/>
+          <text x="480" y="238" text-anchor="middle" fill="#fff" font-weight="800" font-size="18">ГО</text>
+          <text x="480" y="256" text-anchor="middle" fill="rgba(255,255,255,0.65)" font-size="10">Германия</text>
+          <g transform="translate(80,48)">
+            <rect width="160" height="82" rx="14" fill="rgba(255,255,255,0.1)" stroke="rgba(0,255,194,0.4)" stroke-width="1.5"/>
+            <text x="80" y="36" text-anchor="middle" fill="#fff" font-weight="800" font-size="14">Соликамск</text>
+            <rect x="12" y="52" width="40" height="18" rx="4" fill="rgba(0,201,177,0.15)" stroke="rgba(0,201,177,0.3)"/><text x="32" y="64" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="7">Server</text>
+            <rect x="60" y="52" width="40" height="18" rx="4" fill="rgba(0,201,177,0.15)" stroke="rgba(0,201,177,0.3)"/><text x="80" y="64" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="7">LLM</text>
+            <rect x="108" y="52" width="40" height="18" rx="4" fill="rgba(0,201,177,0.15)" stroke="rgba(0,201,177,0.3)"/><text x="128" y="64" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="7">KB</text>
+          </g>
+          <g transform="translate(720,48)">
+            <rect width="160" height="82" rx="14" fill="rgba(255,255,255,0.1)" stroke="rgba(0,255,194,0.4)" stroke-width="1.5"/>
+            <text x="80" y="36" text-anchor="middle" fill="#fff" font-weight="800" font-size="14">Норильск</text>
+            <rect x="12" y="52" width="40" height="18" rx="4" fill="rgba(0,201,177,0.15)" stroke="rgba(0,201,177,0.3)"/><text x="32" y="64" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="7">Server</text>
+            <rect x="60" y="52" width="40" height="18" rx="4" fill="rgba(0,201,177,0.15)" stroke="rgba(0,201,177,0.3)"/><text x="80" y="64" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="7">LLM</text>
+            <rect x="108" y="52" width="40" height="18" rx="4" fill="rgba(0,201,177,0.15)" stroke="rgba(0,201,177,0.3)"/><text x="128" y="64" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="7">KB</text>
+          </g>
+          <g transform="translate(40,368)">
+            <rect width="160" height="82" rx="14" fill="rgba(255,255,255,0.1)" stroke="rgba(0,255,194,0.4)" stroke-width="1.5"/>
+            <text x="80" y="36" text-anchor="middle" fill="#fff" font-weight="800" font-size="14">Сатимола</text>
+            <rect x="12" y="52" width="40" height="18" rx="4" fill="rgba(0,201,177,0.15)" stroke="rgba(0,201,177,0.3)"/><text x="32" y="64" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="7">Server</text>
+            <rect x="60" y="52" width="40" height="18" rx="4" fill="rgba(0,201,177,0.15)" stroke="rgba(0,201,177,0.3)"/><text x="80" y="64" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="7">LLM</text>
+            <rect x="108" y="52" width="40" height="18" rx="4" fill="rgba(0,201,177,0.15)" stroke="rgba(0,201,177,0.3)"/><text x="128" y="64" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="7">KB</text>
+          </g>
+          <g transform="translate(760,368)">
+            <rect width="160" height="82" rx="14" fill="rgba(255,255,255,0.1)" stroke="rgba(0,255,194,0.4)" stroke-width="1.5"/>
+            <text x="80" y="36" text-anchor="middle" fill="#fff" font-weight="800" font-size="14">Котельниково</text>
+            <rect x="12" y="52" width="40" height="18" rx="4" fill="rgba(0,201,177,0.15)" stroke="rgba(0,201,177,0.3)"/><text x="32" y="64" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="7">Server</text>
+            <rect x="60" y="52" width="40" height="18" rx="4" fill="rgba(0,201,177,0.15)" stroke="rgba(0,201,177,0.3)"/><text x="80" y="64" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="7">LLM</text>
+            <rect x="108" y="52" width="40" height="18" rx="4" fill="rgba(0,201,177,0.15)" stroke="rgba(0,201,177,0.3)"/><text x="128" y="64" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="7">KB</text>
+          </g>
+          <circle cx="320" cy="160" r="4" fill="#00FFC2"><animate attributeName="opacity" values="1;0.2;1" dur="2.5s" repeatCount="indefinite"/></circle>
+          <circle cx="640" cy="160" r="4" fill="#00FFC2"><animate attributeName="opacity" values="0.2;1;0.2" dur="2.5s" repeatCount="indefinite"/></circle>
+          <circle cx="300" cy="320" r="4" fill="#00FFC2"><animate attributeName="opacity" values="1;0.2;1" dur="3s" repeatCount="indefinite"/></circle>
+          <circle cx="660" cy="320" r="4" fill="#00FFC2"><animate attributeName="opacity" values="0.2;1;0.2" dur="3s" repeatCount="indefinite"/></circle>
+        </svg>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>Шахтостроение</span><span>05 / 09</span></div>
+</section>
+
+<!-- SLIDE 6 (was 7) -->
+<section class="slide slide--light">
+  <div class="inner inner--fit">
+    <div>
+      <div class="tag">Архитектура</div>
+      <h2>Как работает сеть</h2>
+    </div>
+    <div class="slide-6-grid">
+      <div class="arch-stack" style="max-width:none">
+        <div class="arch-layer"><strong>Пользователи</strong><span>Инженеры, РП, прорабы</span></div>
+        <div class="arch-arrow">↓</div>
+        <div class="arch-layer" style="border-color:rgba(33,230,167,0.4)"><strong>AI Assistant</strong><span>Чат-интерфейс, голос</span></div>
+        <div class="arch-arrow">↓</div>
+        <div class="arch-layer"><strong>AI Agents (агенты ИИ)</strong><span>Автоматизация задач</span></div>
+        <div class="arch-arrow">↓</div>
+        <div class="arch-layer" style="border-color:rgba(167,139,250,0.4)"><strong>LLM (большая языковая модель)</strong><span>Локальный инференс</span></div>
+        <div class="arch-arrow">↓</div>
+        <div class="arch-layer"><strong>Vector Database (векторная база знаний)</strong><span>Семантический индекс</span></div>
+        <div class="arch-arrow">↓</div>
+        <div class="arch-layer"><strong>Документы</strong><span>Сметы, ППР, нормативы</span></div>
+        <div class="arch-arrow">↓</div>
+        <div class="arch-layer"><strong>Локальный сервер</strong><span>On-premise GPU-узел</span></div>
+        <div class="arch-arrow">↓</div>
+        <div class="arch-layer"><strong>Синхронизация</strong><span>VPN-туннели</span></div>
+        <div class="arch-arrow">↓</div>
+        <div class="arch-layer" style="border-color:#21E6A7;border-width:2px"><strong>Центральная AI-платформа</strong><span>ГО · Германия</span></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="card perimeter-diagram">
+          <h3>Закрытый контур — схема периметра</h3>
+          <svg viewBox="0 0 480 280" xmlns="http://www.w3.org/2000/svg" style="width:100%;margin-top:8px">
+            <rect x="20" y="20" width="440" height="240" rx="20" fill="rgba(0,201,177,0.04)" stroke="#0D9B8A" stroke-width="2.5" stroke-dasharray="12 6"/>
+            <text x="240" y="48" text-anchor="middle" fill="#0D9B8A" font-size="14" font-weight="900">КОРПОРАТИВНЫЙ ПЕРИМЕТР</text>
+            <rect x="60" y="70" width="90" height="50" rx="10" fill="#fff" stroke="rgba(13,155,138,0.3)"/><text x="105" y="102" text-anchor="middle" fill="#123026" font-size="11" font-weight="800">Объект 1</text>
+            <rect x="195" y="70" width="90" height="50" rx="10" fill="#fff" stroke="rgba(13,155,138,0.3)"/><text x="240" y="102" text-anchor="middle" fill="#123026" font-size="11" font-weight="800">Объект 2</text>
+            <rect x="330" y="70" width="90" height="50" rx="10" fill="#fff" stroke="rgba(13,155,138,0.3)"/><text x="375" y="102" text-anchor="middle" fill="#123026" font-size="11" font-weight="800">Объект 3–4</text>
+            <circle cx="240" cy="175" r="36" fill="rgba(0,201,177,0.12)" stroke="#00C9B1" stroke-width="2"/><text x="240" y="172" text-anchor="middle" fill="#0D9B8A" font-size="12" font-weight="900">ГО</text>
+            <text x="240" y="188" text-anchor="middle" fill="#5a7a68" font-size="9">VPN mesh</text>
+            <line x1="150" y1="120" x2="210" y2="155" stroke="#00C9B1" stroke-width="1.5" opacity="0.6"/>
+            <line x1="285" y1="120" x2="255" y2="155" stroke="#00C9B1" stroke-width="1.5" opacity="0.6"/>
+            <line x1="375" y1="120" x2="270" y2="155" stroke="#00C9B1" stroke-width="1.5" opacity="0.6"/>
+            <rect x="400" y="200" width="56" height="44" rx="8" fill="#FEE2E2" stroke="#EF4444" stroke-width="1.5" stroke-dasharray="4 3"/>
+            <text x="428" y="220" text-anchor="middle" fill="#EF4444" font-size="9" font-weight="800">Интернет</text>
+            <text x="428" y="234" text-anchor="middle" fill="#EF4444" font-size="8">✗ данные</text>
+            <line x1="360" y1="210" x2="400" y2="222" stroke="#EF4444" stroke-width="2" stroke-dasharray="6 4"/>
+            <text x="355" y="205" fill="#EF4444" font-size="16" font-weight="900">✗</text>
+          </svg>
+          <p>✓ Данные не покидают периметр компании<br>✓ Без облачных API и внешних LLM<br>✓ Синхронизация только по зашифрованным VPN-туннелям между узлами</p>
+          <div class="risk-badge">🛡 Минимальный риск утечки в глобальную сеть — инференс и хранение полностью on-premise</div>
+        </div>
+        <div class="card perimeter-diagram">
+          <h3>Технологии</h3>
+          <p>RAG (поисково-усиленная генерация) · Fine-tuning · OCR · Vision<br>Prometheus · Grafana · VPN · шифрование TLS 1.3</p>
+          <p style="margin-top:10px;color:#5a7a68">Модели и базы знаний развёрнуты локально — запросы не уходят в публичные облака.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>Архитектура</span><span>06 / 09</span></div>
+</section>
+
+<!-- SLIDE 7 -->
+<section class="slide slide--dark">
+  <div class="slide__grid-bg"></div>
+  <div class="inner inner--fit">
+    <div>
+      <div class="tag">Стратегия</div>
+      <h2>Почему действовать необходимо уже сейчас</h2>
+    </div>
+    <div class="g2 slide-8-grid" style="margin-top:12px">
+      <div class="slide-8-left">
+        <p class="timeline-label" style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:12px">Мировая хронология</p>
+        <div class="timeline-v timeline-v--compact">
+          <div class="tl-item">
+            <div class="tl-year">2020</div>
+            <div class="tl-dot"></div>
+            <div class="tl-body">
+              <h4>Начало эры egocentric data</h4>
+              <p>Датасеты first-person видео (EPIC-KITCHENS) для обучения embodied AI.</p>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-year">2024–25</div>
+            <div class="tl-dot"></div>
+            <div class="tl-body">
+              <h4>Массовый сбор видеоданных</h4>
+              <p>Оплата за запись бытовых задач для обучения humanoid-роботов.</p>
+              <p class="source">The Hindu, 12.06.2026 · Objectways, Micro1</p>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-year">2026</div>
+            <div class="tl-dot"></div>
+            <div class="tl-body">
+              <h4>UBTECH U1 — коммерческий humanoid</h4>
+              <p>11 000+ предзаказов. Поставки с 16 сентября 2026.</p>
+              <p class="source">TechNode, 01.07.2026 · PRNewswire</p>
+            </div>
+          </div>
+        </div>
+        <div class="map-block">
+          <img src="assets/world-map.png" alt="Карта приоритетных рынков" />
+          <div class="map-block__caption">Рынки роста: Азия · Африка · Южная Америка</div>
+        </div>
+      </div>
+      <div class="slide-8-right slide-7-right">
+        <div class="card slide-7-scenario">
+          <h3 class="slide-caption">Сценарные эффекты</h3>
+          <svg viewBox="0 0 720 400" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
+            <line x1="110" y1="340" x2="660" y2="340" stroke="rgba(255,255,255,0.25)" stroke-width="2"/>
+            <line x1="110" y1="60" x2="110" y2="340" stroke="rgba(255,255,255,0.25)" stroke-width="2"/>
+            <text x="110" y="48" fill="#fff" font-size="16" font-weight="700">снижение</text>
+            <g>
+              <text x="200" y="95" text-anchor="middle" fill="#fff" font-size="18" font-weight="900">Консервативный</text>
+              <rect x="130" y="210" width="80" height="130" rx="14" fill="rgba(78,161,255,0.22)" stroke="rgba(78,161,255,0.6)"/>
+              <text x="170" y="198" text-anchor="middle" fill="#fff" font-size="16" font-weight="900">−10–15%</text>
+              <text x="170" y="358" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">стоимость</text>
+              <rect x="220" y="235" width="80" height="105" rx="14" fill="rgba(33,230,167,0.16)" stroke="rgba(33,230,167,0.55)"/>
+              <text x="260" y="223" text-anchor="middle" fill="#fff" font-size="16" font-weight="900">−10–20%</text>
+              <text x="260" y="358" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">сроки</text>
+            </g>
+            <g>
+              <text x="360" y="95" text-anchor="middle" fill="#fff" font-size="18" font-weight="900">Базовый</text>
+              <rect x="290" y="170" width="80" height="170" rx="14" fill="rgba(78,161,255,0.22)" stroke="rgba(78,161,255,0.6)"/>
+              <text x="330" y="158" text-anchor="middle" fill="#fff" font-size="16" font-weight="900">−15–25%</text>
+              <text x="330" y="358" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">стоимость</text>
+              <rect x="380" y="140" width="80" height="200" rx="14" fill="rgba(33,230,167,0.16)" stroke="rgba(33,230,167,0.55)"/>
+              <text x="420" y="128" text-anchor="middle" fill="#fff" font-size="16" font-weight="900">−20–35%</text>
+              <text x="420" y="358" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">сроки</text>
+            </g>
+            <g>
+              <text x="520" y="95" text-anchor="middle" fill="#fff" font-size="18" font-weight="900">Оптимистичный</text>
+              <rect x="450" y="90" width="80" height="250" rx="14" fill="rgba(167,139,250,0.18)" stroke="rgba(167,139,250,0.6)"/>
+              <text x="490" y="78" text-anchor="middle" fill="#fff" font-size="15" font-weight="900">−40–70%</text>
+              <text x="490" y="358" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">стоимость</text>
+              <rect x="540" y="115" width="80" height="225" rx="14" fill="rgba(33,230,167,0.16)" stroke="rgba(33,230,167,0.55)"/>
+              <text x="580" y="103" text-anchor="middle" fill="#fff" font-size="15" font-weight="900">−30–50%</text>
+              <text x="580" y="358" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">сроки</text>
+            </g>
+          </svg>
+          <div class="note" style="margin-top:10px;font-size:13px">Экспертные сценарные оценки. Фактический эффект зависит от зрелости процессов и масштаба внедрения.</div>
+        </div>
+        <div class="card slide-7-compete">
+          <h3>Глобальная конкуренция</h3>
+          <p style="margin-top:8px;color:#fff">
+            При текущих темпах AI и роботизации преимущества быстро превращаются в себестоимость и скорость.
+            Отстающие рискуют потерять долю на рынках Азии, Африки и Южной Америки.
+            Вывод: накапливать знания и автоматизировать решения сейчас.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>Стратегия</span><span>07 / 09</span></div>
+</section>
+
+<!-- SLIDE 8 -->
+<section class="slide slide--light">
+  <div class="inner inner--fit">
+    <div>
+      <div class="tag">Инвестиции</div>
+      <h2>Экономика проекта</h2>
+      <p class="lead" style="margin-top:10px;font-size:16px">Конфигурация AI-узла · ориентир Q2 2026</p>
+    </div>
+    <div class="slide-8-econ">
+      <div>
+        <table class="data table-compact">
+          <thead><tr><th>Компонент</th><th>Модель</th><th>тыс. ₽</th></tr></thead>
+          <tbody>
+            <tr><td>Видеокарты (2×)</td><td>MSI GeForce RTX 4090 VENTUS 3X E 24G OC</td><td>550</td></tr>
+            <tr><td>Процессор</td><td>AMD Ryzen Threadripper PRO 5995WX (64 ядра)</td><td>356</td></tr>
+            <tr><td>Оперативная память</td><td>256 GB DDR5 ECC REG SK Hynix 5600 MHz</td><td>697</td></tr>
+            <tr><td>SSD Системный (RAID 1)</td><td>2× SSD 2 TB NVMe M.2 Crucial T500</td><td>53</td></tr>
+            <tr><td>SSD База данных (RAID 1)</td><td>2× SSD 8 TB NVMe M.2 Samsung 9100 PRO</td><td>266</td></tr>
+            <tr><td>Корпус + БП (4U)</td><td>Supermicro CSE-847E16-R1400LPB</td><td>300</td></tr>
+            <tr><td>Сетевое оборудование</td><td>10 GbE коммутатор + NIC</td><td>130</td></tr>
+            <tr><td>ИБП (онлайн)</td><td>Штиль STR1103TLD (3 кВА / 2,7 кВт)</td><td>80</td></tr>
+            <tr class="total"><td colspan="2">Итого · 1 объект</td><td>2 432</td></tr>
+          </tbody>
+        </table>
+        <p class="note">Ориентир по рыночным ценам Q2 2026. Фактическая стоимость зависит от поставщика и курса.</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px;justify-content:center">
+        <div class="card" style="text-align:center;padding:28px">
+          <div style="font-size:13px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#7a9a88">Стоимость узла</div>
+          <div class="metric" style="font-size:48px;margin:12px 0">≈2,43 млн ₽</div>
+          <div style="font-size:15px;color:#5a7a68">на один AI-узел · под ключ</div>
+        </div>
+        <div class="card" style="padding:24px;text-align:center">
+          <h3>Окупаемость</h3>
+          <p style="margin-top:10px;font-weight:800;color:var(--accent-dark);font-size:28px">12–18 мес.</p>
+          <p style="font-size:14px;color:#5a7a68;margin-top:6px">Базовый сценарий · 4 объекта</p>
+        </div>
+        <div class="bar-chart" style="padding-top:36px;height:140px">
+          <div class="bar-item"><div class="bar" style="height:25%"><span class="bar__val">2,43</span></div><span class="bar__lbl">1 объект</span></div>
+          <div class="bar-item"><div class="bar" style="height:100%;opacity:0.85"><span class="bar__val">9,73</span></div><span class="bar__lbl">4 объекта</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span>Экономика</span><span>08 / 09</span></div>
+</section>
+
+<!-- SLIDE 9 -->
+<section class="slide slide--dark">
+  <div class="slide__grid-bg"></div>
+  <div class="inner inner--fit">
+    <div>
+      <div class="tag">Дорожная карта</div>
+      <h2>Следующие шаги</h2>
+    </div>
+    <div class="roadmap-modern">
+      <div class="roadmap-modern__step">
+        <div class="roadmap-modern__connector"></div>
+        <div class="roadmap-modern__num">01</div>
+        <h3>Пилот</h3>
+        <div class="roadmap-modern__meta">
+          <strong>Срок:</strong> 2–3 мес.<br>
+          <strong>KPI:</strong> 3 сценария, latency &lt;3с<br>
+          <strong>Риск:</strong> Качество данных<br>
+          <strong>Результат:</strong> Proof of concept
+        </div>
+      </div>
+      <div class="roadmap-modern__step">
+        <div class="roadmap-modern__connector"></div>
+        <div class="roadmap-modern__num">02</div>
+        <h3>Первый объект</h3>
+        <div class="roadmap-modern__meta">
+          <strong>Срок:</strong> 3–4 мес.<br>
+          <strong>KPI:</strong> 50+ пользователей<br>
+          <strong>Риск:</strong> Adoption<br>
+          <strong>Результат:</strong> Соликамск live
+        </div>
+      </div>
+      <div class="roadmap-modern__step">
+        <div class="roadmap-modern__connector"></div>
+        <div class="roadmap-modern__num">03</div>
+        <h3>Масштабирование</h3>
+        <div class="roadmap-modern__meta">
+          <strong>Срок:</strong> 4–6 мес.<br>
+          <strong>KPI:</strong> 2–3 объекта<br>
+          <strong>Риск:</strong> Интеграции<br>
+          <strong>Результат:</strong> Синхронизация
+        </div>
+      </div>
+      <div class="roadmap-modern__step">
+        <div class="roadmap-modern__connector"></div>
+        <div class="roadmap-modern__num">04</div>
+        <h3>Интеграция</h3>
+        <div class="roadmap-modern__meta">
+          <strong>Срок:</strong> 3–4 мес.<br>
+          <strong>KPI:</strong> 4 объекта online<br>
+          <strong>Риск:</strong> VPN, безопасность<br>
+          <strong>Результат:</strong> Единая сеть
+        </div>
+      </div>
+      <div class="roadmap-modern__step roadmap-modern__step--final">
+        <div class="roadmap-modern__num">05</div>
+        <h3>Единая AI-сеть</h3>
+        <div class="roadmap-modern__meta">
+          <strong>Срок:</strong> 12–18 мес. total<br>
+          <strong>KPI:</strong> 4 объекта + ГО<br>
+          <strong>Риск:</strong> Масштаб знаний<br>
+          <strong>Результат:</strong> Корпоративный AI-актив
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:24px;text-align:center">
+      <span class="chip" style="font-size:14px;padding:10px 20px">Локальная AI-сеть</span>
+      <span class="chip" style="font-size:14px;padding:10px 20px;margin-left:10px">Безопасность</span>
+      <span class="chip" style="font-size:14px;padding:10px 20px;margin-left:10px">Накопленный опыт</span>
+    </div>
+  </div>
+  <div class="footer"><span>Дорожная карта</span><span>09 / 09</span></div>
+</section>
+
+</div>
+<script>if (window.lucide) lucide.createIcons();</script>
+</body>
+</html>
